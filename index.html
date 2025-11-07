@@ -25,9 +25,24 @@
             <!-- Tab contents will be generated dynamically -->
         </div>
     </div>
-    <div id="cart">
-        <!-- Cart contents will be generated dynamically -->
+    <div class="overlay" id="cartOverlay"></div>
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-header">
+            <h2 class="cart-title">Ваш заказ</h2>
+            <button class="close-cart">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items will be added here -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Итого:</span>
+                <span id="cartTotal">0 RSD</span>
+            </div>
+            <button class="checkout-btn">Оформить заказ</button>
+        </div>
     </div>
+
     <script src="menu_formating.js"></script>
 </body>
 </html>

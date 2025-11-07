@@ -98,6 +98,12 @@ const data = {
     "Тарталетки": []
 };
 
+// Cart state
+let cart = [];
+
+const cartItemsContainer = document.getElementById('cartItems');
+const cartTotalElement = document.getElementById('cartTotal');
+
 // Function to create a product card
 function createProductCard(element) {
     let card = document.createElement("div");
@@ -166,6 +172,16 @@ function renderProducts() {
     });
 }
 
+function findProductById(productId) {
+    for (const category in data) {
+        const product = data[category].find(item => item.id === productId);
+        if (product) {
+            return product;
+        }
+    }
+    return null;
+}
+
 // Function to add quantity controls to a card
 function addQuantityControls(card) {
     const addBtn = card.querySelector('.addItem');
@@ -183,6 +199,15 @@ function addQuantityControls(card) {
             `;
             quantity = 1;
 
+            // Add the item to cart
+            const productId = parseInt(card.dataset.id);
+            const product = findProductById(productId);
+            if (product) {
+                addToCart(product, 1);
+            }
+
+
+
             // Add event listeners to the new buttons
             const plusBtn = controlsContainer.querySelector('.plus-btn');
             const minusBtn = controlsContainer.querySelector('.minus-btn');
@@ -191,22 +216,42 @@ function addQuantityControls(card) {
             plusBtn.addEventListener('click', () => {
                 quantity++;
                 quantityDisplay.textContent = quantity;
+                updateCartItemQuantity(productId, quantity);
             });
 
             minusBtn.addEventListener('click', () => {
                 if (quantity > 1) {
                     quantity--;
                     quantityDisplay.textContent = quantity;
+                    updateCartItemQuantity(productId, quantity);
                 } else {
                     // Replace with just "+" when quantity is 0
                     controlsContainer.innerHTML = `<button class="addItem">+</button>`;
                     quantity = 0;
+                    removeFromCart(productId);
                     // Re-add the event listener to the new button
                     addQuantityControls(card);
                 }
             });
         }
     });
+}
+
+function addToCart(product, quantity) {
+    const existingItem = cart.find(item => item.id === product.id);
+
+    if (existingItem) {
+        existingItem.quantity += quantity;
+    } else {
+        cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: quantity
+        });
+    }
+
+    updateCartDisplay();
 }
 
 // Function to handle category switching
@@ -227,6 +272,90 @@ function setupCategorySwitching() {
         });
     });
 }
+
+function updateCartItemQuantity(productId, quantity) {
+    const item = cart.find(item => item.id === productId);
+
+    if (item) {
+        item.quantity = quantity;
+        updateCartDisplay();
+    }
+}
+
+// Function to remove item from cart
+function removeFromCart(productId) {
+    cart = cart.filter(item => item.id !== productId);
+    updateCartDisplay();
+}
+
+
+function updateCartDisplay() {
+    // Clear cart items container
+    cartItemsContainer.innerHTML = '';
+
+    if (cart.length === 0) {
+        cartItemsContainer.innerHTML = '<div class="empty-cart-message">Ваша корзина пуста</div>';
+        cartTotalElement.textContent = '0 RSD';
+        return;
+    }
+
+    // Add each item to the cart display
+    cart.forEach(item => {
+        const cartItemElement = document.createElement('div');
+        cartItemElement.className = 'cart-item';
+        cartItemElement.innerHTML = `
+            <div class="cart-item-info">
+                <div class="cart-item-name">${item.name}</div>
+                <div class="cart-item-price">${item.price} RSD</div>
+            </div>
+            <div class="cart-item-controls">
+                <button class="minus-btn" data-id="${item.id}">-</button>
+                <span class="cart-item-quantity">${item.quantity}</span>
+                <button class="plus-btn" data-id="${item.id}">+</button>
+            </div>
+        `;
+        cartItemsContainer.appendChild(cartItemElement);
+    });
+
+    // Calculate and display total
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    cartTotalElement.textContent = `${total} RSD`;
+
+    // Add event listeners to cart item controls
+    document.querySelectorAll('.cart-item-controls .plus-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = parseInt(this.dataset.id);
+            const productCard = document.querySelector(`.cardMenuItem[data-id="${productId}"]`);
+            const quantityDisplay = productCard.querySelector('.quantity-display');
+            let currentQuantity = parseInt(quantityDisplay.textContent);
+            currentQuantity++;
+            quantityDisplay.textContent = currentQuantity;
+            updateCartItemQuantity(productId, currentQuantity);
+        });
+    });
+
+    document.querySelectorAll('.cart-item-controls .minus-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = parseInt(this.dataset.id);
+            const productCard = document.querySelector(`.cardMenuItem[data-id="${productId}"]`);
+            const quantityDisplay = productCard.querySelector('.quantity-display');
+            let currentQuantity = parseInt(quantityDisplay.textContent);
+
+            if (currentQuantity > 1) {
+                currentQuantity--;
+                quantityDisplay.textContent = currentQuantity;
+                updateCartItemQuantity(productId, currentQuantity);
+            } else {
+                // Remove from cart and reset product card
+                const controlsContainer = productCard.querySelector('.quantity-controls');
+                controlsContainer.innerHTML = `<button class="addItem">+</button>`;
+                addQuantityControls(productCard);
+                removeFromCart(productId);
+            }
+        });
+    });
+}
+
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', () => {
