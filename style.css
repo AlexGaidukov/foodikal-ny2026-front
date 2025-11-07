@@ -9,7 +9,7 @@ body {
 }
 
 header {
-    background-image: url(../images/header_bg.png);
+    background-image: url(images/header_bg.png);
     background-size: cover;
     position: sticky;
     top: 0;
@@ -27,6 +27,9 @@ header {
     justify-content: center;
     gap: 15px;
     flex-wrap: wrap;
+    width: 60%;
+    align: center;
+    margin: 0 auto;
 }
 
 .category {
@@ -35,9 +38,10 @@ header {
     backdrop-filter: blur(5px);
     border-radius: 20px;
     color: #ffffff;
-    font-size: 24pt;
+    font-size: 18pt;
     font-family: Jost;
     padding: 10px 20px;
+    margin-bottom: 0px;
     border: none;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -71,6 +75,7 @@ header {
     max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
+    z-index: 20;
 }
 
 .products-grid {
@@ -105,13 +110,13 @@ header {
     padding-right: 5px;
     padding-bottom: 5px;
     margin: 0px;
-    font-size: 22pt;
+    font-size: 18pt;
     line-height: 22pt;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .itemDescription {
-    font-size: 16pt;
+    font-size: 14pt;
     line-height: 16pt;
     padding: 5px;
     color: rgba(255, 255, 255, 0.5);
@@ -225,4 +230,33 @@ header {
         grid-template-columns: 1fr;
         justify-items: center;
     }
+}
+
+.order {
+    background-color: rgba(200, 10, 10, 0.7);
+    border: none;
+    font-size: 18pt;
+    font-family: Jost;
+    padding: 10px 20px;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    float: right;
+    text-align: right;
+    margin-right: 20px;
+    margin-top: 20px;
+    font-family: Jost;
+    height: 60px;
+    z-index: 100;
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+    border-radius: 20px;
+    color: #ffffff;
+    margin-bottom: 0px;
+    border: none;
+    cursor: pointer;
+}
+
+.order:hover {
+    background-color: rgba(200, 10, 10, 0.9);
+    transition: background-color 0.2s;
 }
