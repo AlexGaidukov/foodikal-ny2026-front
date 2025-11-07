@@ -101,8 +101,14 @@ const data = {
 // Cart state
 let cart = [];
 
+
+const orderButton = document.querySelector('.order');
+const cartModal = document.getElementById('cartModal');
+const cartOverlay = document.getElementById('cartOverlay');
+const closeCartButton = document.querySelector('.close-cart');
 const cartItemsContainer = document.getElementById('cartItems');
 const cartTotalElement = document.getElementById('cartTotal');
+const tabContentsContainer = document.getElementById('tabContentsContainer');
 
 // Function to create a product card
 function createProductCard(element) {
@@ -355,6 +361,34 @@ function updateCartDisplay() {
         });
     });
 }
+
+// Event listeners for cart modal
+orderButton.addEventListener('click', function() {
+    cartModal.classList.add('active');
+    cartOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+});
+
+closeCartButton.addEventListener('click', function() {
+    cartModal.classList.remove('active');
+    cartOverlay.classList.remove('active');
+    document.body.style.overflow = 'auto';
+});
+
+cartOverlay.addEventListener('click', function() {
+    cartModal.classList.remove('active');
+    cartOverlay.classList.remove('active');
+    document.body.style.overflow = 'auto';
+});
+
+// Close cart with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && cartModal.classList.contains('active')) {
+        cartModal.classList.remove('active');
+        cartOverlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+});
 
 
 // Initialize the page
