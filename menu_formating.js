@@ -398,8 +398,8 @@ checkoutForm.addEventListener('submit', async function(e) {
         return;
     }
 
-    if (!customerContact || customerContact.length < 10) {
-        showFormMessage('Пожалуйста, введите корректный номер телефона (минимум 10 символов).', 'error');
+    if (!customerContact || customerContact.length < 3) {
+        showFormMessage('Пожалуйста, введите номер телефона или Telegram.', 'error');
         return;
     }
 
@@ -443,7 +443,7 @@ checkoutForm.addEventListener('submit', async function(e) {
 
         // Show success message
         showFormMessage(
-            `Заказ успешно создан! Номер заказа: ${result.orderId}. Итого: ${result.totalPrice} RSD. Мы свяжемся с вами в ближайшее время.`,
+            `Заказ успешно создан! Итого: ${result.totalPrice} RSD. Наш менеджер свяжется с вами для подтверждения.`,
             'success'
         );
 

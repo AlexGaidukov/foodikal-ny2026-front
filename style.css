@@ -309,10 +309,29 @@ header {
 
 .order-form-column {
     flex: 1;
-    padding: 20px;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     background-color: #f9f9f9;
     border-right: 1px solid #eee;
+    overflow: hidden;
+}
+
+.order-form-column form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.form-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.form-submit-area {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #eee;
 }
 
 .cart-items-column {
@@ -395,7 +414,6 @@ header {
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s;
-    margin-top: 10px;
 }
 
 .checkout-btn:hover {
@@ -443,7 +461,7 @@ header {
 .form-title {
     font-size: 18px;
     font-weight: 600;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     margin-top: 0;
 }
 
@@ -484,7 +502,7 @@ header {
 }
 
 .form-message {
-    margin: 15px 0;
+    margin-bottom: 15px;
     padding: 10px;
     border-radius: 5px;
     font-size: 14px;
