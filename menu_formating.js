@@ -1,102 +1,58 @@
-// Fixed JSON data with proper syntax
-const data = {
-    "Брускеты": [
-        {
-            "id": 1,
-            "name": "Брускетта с вяленой свининой (60г)",
-            "description": "Состав составов: блюдо состоит из кучи разных штук например штука1 и штука2 и штука3 и штука4.",
-            "price": 300,
-            "image": "images/img1.jpg"
-        },
-        {
-            "id": 15,
-            "name": "Брускетта с вяленой свининой (60г)",
-            "description": "Состав составов: блюдо состоит из кучи разных штук например штука1 и штука2 и штука3 и штука4.",
-            "price": 300,
-            "image": "images/img1.jpg"
-        },
+// API Integration Class
+class FoodikalAPI {
+    constructor() {
+        this.baseURL = 'https://foodikal-ny-cors-wrapper.x-gs-x.workers.dev';
+    }
 
-        {
-            "id": 2,
-            "name": "Брускетта с гравлаксом (60г)",
-            "description": "Состав составов: блюдо состоит из кучи разных штук например штука1 и штука2 и штука3 и штука4.",
-            "price": 220,
-            "image": "images/img1.jpg"
-        },
-        {
-            "id": 3,
-            "name": "Брускетта с грибной икрой (60г)",
-            "description": "Состав составов: блюдо состоит из кучи разных штук например штука1 и штука2 и штука3 и штука4.",
-            "price": 120,
-            "image": "images/img1.jpg"
-        }
-    ],
-    "Горячее": [
-        {
-            "id": 4,
-            "name": "Баранья нога (запеченая, 1780г)",
-            "description": "Состав составов: блюдо состоит из кучи разных штук например штука1 и штука2 и штука3 и штука4.",
-            "price": 15500,
-            "image": "images/img1.jpg"
-        },
-        {
-            "id": 5,
-            "name": "Куриный шашлычок с картофелем фри (200г)",
-            "description": "Состав составов: блюдо состоит из кучи разных штук например штука1 и штука2 и штука3 и штука4.",
-            "price": 550,
-            "image": "images/img1.jpg"
-        },
-        {
-            "id": 6,
-            "name": "Овощи гриль (550г)",
-            "description": "Состав составов: блюдо состоит из кучи разных штук например штука1 и штука2 и штука3 и штука4.",
-            "price": 650,
-            "image": "images/img1.jpg"
-        }
-    ],
-    "Закуски": [
-        {
-            "id": 7,
-            "name": "Ассорти сыров и мясных деликатесов (300г)",
-            "description": "Состав составов: блюдо состоит из кучи разных штук например штука1 и штука2 и штука3 и штука4.",
-            "price": 2000,
-            "image": "images/img1.jpg"
-        },
-        {
-            "id": 8,
-            "name": "Хумус с баклажаном (закуска, 1шт 50г)",
-            "description": "Состав составов: блюдо состоит из кучи разных штук например штука1 и штука2 и штука3 и штука4.",
-            "price": 120,
-            "image": "images/img1.jpg"
-        }
-    ],
-    "Канапе": [
-        {
-            "id": 9,
-            "name": "Канапе овощное (45г)",
-            "description": "Состав составов: блюдо состоит из кучи разных штук например штука1 и штука2 и штука3 и штука4.",
-            "price": 75,
-            "image": "images/img1.jpg"
-        },
-        {
-            "id": 10,
-            "name": "Канапе с ветчиной (40г)",
-            "description": "Состав составов: блюдо состоит из кучи разных штук например штука1 и штука2 и штука3 и штука4.",
-            "price": 90,
-            "image": "images/img1.jpg"
-        },
-        {
-            "id": 11,
-            "name": "Канапе с грушей и пршутом (25г)",
-            "description": "Состав составов: блюдо состоит из кучи разных штук например штука1 и штука2 и штука3 и штука4.",
-            "price": 140,
-            "image": "images/img1.jpg"
-        }
+    async getMenu() {
+        try {
+            const response = await fetch(`${this.baseURL}/api/menu`);
+            const result = await response.json();
 
-    ],
-    "Салаты": [],
-    "Тарталетки": []
-};
+            if (result.success) {
+                return result.grouped_menu;
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error) {
+            console.error('Failed to fetch menu:', error);
+            throw error;
+        }
+    }
+
+    async createOrder(orderData) {
+        try {
+            const response = await fetch(`${this.baseURL}/api/create_order`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                return {
+                    orderId: result.order_id,
+                    totalPrice: result.total_price,
+                    message: result.message
+                };
+            } else {
+                throw new Error(result.error || 'Failed to create order');
+            }
+        } catch (error) {
+            console.error('Failed to create order:', error);
+            throw error;
+        }
+    }
+}
+
+// Initialize API
+const api = new FoodikalAPI();
+
+// Menu data - will be populated from API
+let data = {};
 
 // Cart state
 let cart = [];
@@ -115,8 +71,12 @@ function createProductCard(element) {
     let card = document.createElement("div");
     card.className = "cardMenuItem";
     card.dataset.id = element.id;
+
+    // Ensure image path has images/ prefix
+    const imagePath = element.image.startsWith('images/') ? element.image : `images/${element.image}`;
+
     card.innerHTML = `
-        <img class="itemImage" src="${element.image}" alt="${element.name}">
+        <img class="itemImage" src="${imagePath}" alt="${element.name}">
         <h2 class="itemTitle">${element.name}</h2>
         <div class="itemDescription">${element.description}</div>
         <div class="itemRow">
@@ -390,10 +350,141 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
+// Form submission handler
+const checkoutForm = document.getElementById('checkoutForm');
+const formMessage = document.getElementById('formMessage');
+const submitOrderBtn = document.getElementById('submitOrderBtn');
+
+checkoutForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    // Validate cart is not empty
+    if (cart.length === 0) {
+        showFormMessage('Ваша корзина пуста. Добавьте товары перед оформлением заказа.', 'error');
+        return;
+    }
+
+    // Get form data
+    const formData = new FormData(checkoutForm);
+    const customerName = formData.get('customerName').trim();
+    const customerContact = formData.get('customerContact').trim();
+    const customerEmail = formData.get('customerEmail').trim();
+    const deliveryAddress = formData.get('deliveryAddress').trim();
+    const deliveryDate = formData.get('deliveryDate');
+    const comments = formData.get('comments').trim();
+
+    // Validate required fields
+    if (!customerName || customerName.length < 2) {
+        showFormMessage('Пожалуйста, введите корректное имя (минимум 2 символа).', 'error');
+        return;
+    }
+
+    if (!customerContact || customerContact.length < 10) {
+        showFormMessage('Пожалуйста, введите корректный номер телефона (минимум 10 символов).', 'error');
+        return;
+    }
+
+    if (!deliveryAddress || deliveryAddress.length < 5) {
+        showFormMessage('Пожалуйста, введите корректный адрес доставки (минимум 5 символов).', 'error');
+        return;
+    }
+
+    if (!deliveryDate) {
+        showFormMessage('Пожалуйста, выберите дату доставки.', 'error');
+        return;
+    }
+
+    // Validate email format if provided
+    if (customerEmail && !isValidEmail(customerEmail)) {
+        showFormMessage('Пожалуйста, введите корректный email адрес.', 'error');
+        return;
+    }
+
+    // Build order data
+    const orderData = {
+        customer_name: customerName,
+        customer_contact: customerContact,
+        customer_email: customerEmail || '',
+        delivery_address: deliveryAddress,
+        delivery_date: deliveryDate,
+        comments: comments || '',
+        order_items: cart.map(item => ({
+            item_id: item.id,
+            quantity: item.quantity
+        }))
+    };
+
+    // Disable submit button
+    submitOrderBtn.disabled = true;
+    submitOrderBtn.textContent = 'Отправка...';
+
+    try {
+        // Submit order
+        const result = await api.createOrder(orderData);
+
+        // Show success message
+        showFormMessage(
+            `Заказ успешно создан! Номер заказа: ${result.orderId}. Итого: ${result.totalPrice} RSD. Мы свяжемся с вами в ближайшее время.`,
+            'success'
+        );
+
+        // Clear cart
+        cart = [];
+        updateCartDisplay();
+
+        // Reset form
+        checkoutForm.reset();
+
+        // Scroll to message
+        formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    } catch (error) {
+        // Show error message
+        showFormMessage(
+            `Ошибка при создании заказа: ${error.message}. Пожалуйста, попробуйте еще раз или свяжитесь с нами напрямую.`,
+            'error'
+        );
+    } finally {
+        // Re-enable submit button
+        submitOrderBtn.disabled = false;
+        submitOrderBtn.textContent = 'Отправить заказ';
+    }
+});
+
+// Helper function to show form messages
+function showFormMessage(message, type) {
+    formMessage.textContent = message;
+    formMessage.className = `form-message ${type}`;
+    formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Helper function to validate email
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
 
 // Initialize the page
-document.addEventListener('DOMContentLoaded', () => {
-    createTabContents();
-    renderProducts();
-    setupCategorySwitching();
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Show loading state
+        const container = document.querySelector('.container');
+        container.innerHTML = '<div class="loading-message">Загрузка меню...</div>';
+
+        // Fetch menu from API
+        data = await api.getMenu();
+
+        // Hide loading and render content
+        container.innerHTML = '<div id="tabContentsContainer"></div>';
+
+        createTabContents();
+        renderProducts();
+        setupCategorySwitching();
+    } catch (error) {
+        // Show error message
+        const container = document.querySelector('.container');
+        container.innerHTML = '<div class="error-message">Ошибка загрузки меню. Пожалуйста, обновите страницу.</div>';
+        console.error('Failed to initialize menu:', error);
+    }
 });

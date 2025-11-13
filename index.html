@@ -13,11 +13,11 @@
         <button class="order">Сделать заказ</button>
     </header>
     <div class="navbar">
-        <button class="category active" data-category="Брускеты">Брускеты</button>
+        <button class="category active" data-category="Брускетты">Брускетты</button>
         <button class="category" data-category="Горячее">Горячее</button>
         <button class="category" data-category="Закуски">Закуски</button>
         <button class="category" data-category="Канапе">Канапе</button>
-        <button class="category" data-category="Салаты">Салаты</button>
+        <button class="category" data-category="Салат">Салат</button>
         <button class="category" data-category="Тарталетки">Тарталетки</button>
     </div>
     <div class="container">
@@ -39,7 +39,55 @@
                 <span>Итого:</span>
                 <span id="cartTotal">0 RSD</span>
             </div>
-            <button class="checkout-btn">Оформить заказ</button>
+        </div>
+
+        <!-- Order Form -->
+        <div class="order-form" id="orderForm">
+            <h3 class="form-title">Информация для доставки</h3>
+            <form id="checkoutForm">
+                <div class="form-group">
+                    <label for="customerName">Имя и фамилия *</label>
+                    <input type="text" id="customerName" name="customerName" required minlength="2" maxlength="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="customerContact">Телефон *</label>
+                    <input type="tel" id="customerContact" name="customerContact" required minlength="10" maxlength="20" placeholder="+1234567890">
+                </div>
+
+                <div class="form-group">
+                    <label for="customerEmail">Email (необязательно)</label>
+                    <input type="email" id="customerEmail" name="customerEmail">
+                </div>
+
+                <div class="form-group">
+                    <label for="deliveryAddress">Адрес доставки *</label>
+                    <textarea id="deliveryAddress" name="deliveryAddress" required minlength="5" maxlength="200" rows="2"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="deliveryDate">Дата доставки *</label>
+                    <select id="deliveryDate" name="deliveryDate" required>
+                        <option value="">Выберите дату</option>
+                        <option value="2025-12-25">25 декабря 2025</option>
+                        <option value="2025-12-26">26 декабря 2025</option>
+                        <option value="2025-12-27">27 декабря 2025</option>
+                        <option value="2025-12-28">28 декабря 2025</option>
+                        <option value="2025-12-29">29 декабря 2025</option>
+                        <option value="2025-12-30">30 декабря 2025</option>
+                        <option value="2025-12-31">31 декабря 2025</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="comments">Комментарии (необязательно)</label>
+                    <textarea id="comments" name="comments" rows="3" placeholder="Особые пожелания к заказу"></textarea>
+                </div>
+
+                <div class="form-message" id="formMessage"></div>
+
+                <button type="submit" class="checkout-btn" id="submitOrderBtn">Отправить заказ</button>
+            </form>
         </div>
     </div>
 
