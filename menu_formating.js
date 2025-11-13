@@ -28,6 +28,8 @@ class FoodikalAPI {
 
     async createOrder(orderData) {
         try {
+            console.log('Sending order data:', orderData);
+
             const response = await fetch(`${this.baseURL}/api/create_order`, {
                 method: 'POST',
                 headers: {
@@ -36,7 +38,12 @@ class FoodikalAPI {
                 body: JSON.stringify(orderData)
             });
 
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             const result = await response.json();
+            console.log('Order API response:', result);
 
             if (result.success) {
                 return {
@@ -45,7 +52,13 @@ class FoodikalAPI {
                     message: result.message
                 };
             } else {
-                throw new Error(result.error || 'Failed to create order');
+                // Include details if available
+                const errorMessage = result.error || 'Failed to create order';
+                if (result.details) {
+                    console.error('Order validation errors:', result.details);
+                    throw new Error(`${errorMessage}: ${JSON.stringify(result.details)}`);
+                }
+                throw new Error(errorMessage);
             }
         } catch (error) {
             console.error('Failed to create order:', error);
