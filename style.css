@@ -267,7 +267,7 @@ header {
     top: 0;
     right: 0;
     width: 100%;
-    max-width: 400px;
+    max-width: 900px;
     height: 100%;
     background-color: white;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
@@ -298,6 +298,36 @@ header {
     font-size: 24px;
     cursor: pointer;
     color: #666;
+}
+
+/* Two Column Layout */
+.cart-content {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.order-form-column {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+    border-right: 1px solid #eee;
+}
+
+.cart-items-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+}
+
+.cart-items-title {
+    font-size: 18px;
+    font-weight: 600;
+    padding: 20px 20px 10px 20px;
+    margin: 0;
+    border-bottom: 1px solid #f1f1f1;
 }
 
 .cart-items {
@@ -342,15 +372,16 @@ header {
 
 .cart-footer {
     padding: 20px;
-    border-top: 1px solid #eee;
+    border-top: 2px solid #eee;
+    background-color: #f9f9f9;
 }
 
 .cart-total {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
 }
 
 .checkout-btn {
@@ -364,6 +395,7 @@ header {
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s;
+    margin-top: 10px;
 }
 
 .checkout-btn:hover {
@@ -391,18 +423,21 @@ header {
     display: block;
 }
 
+/* Responsive Layout */
 @media (max-width: 768px) {
     .cart-modal {
         width: 100%;
         max-width: none;
     }
-}
 
-/* Order Form Styles */
-.order-form {
-    padding: 20px;
-    border-top: 1px solid #eee;
-    background-color: #f9f9f9;
+    .cart-content {
+        flex-direction: column;
+    }
+
+    .order-form-column {
+        border-right: none;
+        border-bottom: 1px solid #eee;
+    }
 }
 
 .form-title {
