@@ -7,12 +7,18 @@ class FoodikalAPI {
     async getMenu() {
         try {
             const response = await fetch(`${this.baseURL}/api/menu`);
-            const result = await response.json();
 
-            if (result.success) {
-                return result.grouped_menu;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('API Response:', result);
+
+            if (result.success && result.data) {
+                return result.data;
             } else {
-                throw new Error(result.error);
+                throw new Error(result.error || 'Invalid menu data');
             }
         } catch (error) {
             console.error('Failed to fetch menu:', error);
@@ -473,7 +479,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         container.innerHTML = '<div class="loading-message">Загрузка меню...</div>';
 
         // Fetch menu from API
-        data = await api.getMenu();
+        const menuData = await api.getMenu();
+
+        // Validate menu data
+        if (!menuData || typeof menuData !== 'object') {
+            throw new Error('Invalid menu data received from API');
+        }
+
+        data = menuData;
+        console.log('Menu loaded successfully:', Object.keys(data));
 
         // Hide loading and render content
         container.innerHTML = '<div id="tabContentsContainer"></div>';
@@ -484,7 +498,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
         // Show error message
         const container = document.querySelector('.container');
-        container.innerHTML = '<div class="error-message">Ошибка загрузки меню. Пожалуйста, обновите страницу.</div>';
+        container.innerHTML = `<div class="error-message">Ошибка загрузки меню: ${error.message}<br>Пожалуйста, обновите страницу.</div>`;
         console.error('Failed to initialize menu:', error);
     }
 });
