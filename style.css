@@ -36,11 +36,11 @@ header {
     background-color: rgba(112, 131, 109, 0.5);
     -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
-    border-radius: 20px;
+    border-radius: 14px;
     color: #ffffff;
-    font-size: 18pt;
+    font-size: 12.5pt;
     font-family: Jost;
-    padding: 10px 20px;
+    padding: 7px 14px;
     margin-bottom: 0px;
     border: none;
     cursor: pointer;
@@ -198,8 +198,8 @@ header {
     }
 
     .category {
-        font-size: 18pt;
-        padding: 8px 15px;
+        font-size: 12.5pt;
+        padding: 6px 12px;
     }
 
     .products-grid {
