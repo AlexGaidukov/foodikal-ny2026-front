@@ -57,13 +57,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="customerContact">Телефон или Telegram *</label>
-                            <input type="text" id="customerContact" name="customerContact" required minlength="3" maxlength="50" placeholder="381641234567 или username">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="customerEmail">Email (необязательно)</label>
-                            <input type="email" id="customerEmail" name="customerEmail">
+                            <label for="customerContact">Как с вами связаться *</label>
+                            <input type="text" id="customerContact" name="customerContact" required minlength="3" maxlength="50" placeholder="Telegram, Телефон или Email">
                         </div>
 
                         <div class="form-group">
@@ -73,16 +68,16 @@
 
                         <div class="form-group">
                             <label for="deliveryDate">Дата доставки *</label>
-                            <select id="deliveryDate" name="deliveryDate" required>
-                                <option value="">Выберите дату</option>
-                                <option value="2025-12-25">25 декабря 2025</option>
-                                <option value="2025-12-26">26 декабря 2025</option>
-                                <option value="2025-12-27">27 декабря 2025</option>
-                                <option value="2025-12-28">28 декабря 2025</option>
-                                <option value="2025-12-29">29 декабря 2025</option>
-                                <option value="2025-12-30">30 декабря 2025</option>
-                                <option value="2025-12-31">31 декабря 2025</option>
-                            </select>
+                            <div class="date-buttons">
+                                <button type="button" class="date-btn" data-value="2025-12-25">25 дек</button>
+                                <button type="button" class="date-btn" data-value="2025-12-26">26 дек</button>
+                                <button type="button" class="date-btn" data-value="2025-12-27">27 дек</button>
+                                <button type="button" class="date-btn" data-value="2025-12-28">28 дек</button>
+                                <button type="button" class="date-btn" data-value="2025-12-29">29 дек</button>
+                                <button type="button" class="date-btn" data-value="2025-12-30">30 дек</button>
+                                <button type="button" class="date-btn selected" data-value="2025-12-31">31 дек</button>
+                            </div>
+                            <input type="hidden" id="deliveryDate" name="deliveryDate" value="2025-12-31" required>
                         </div>
 
                         <div class="form-group">
@@ -108,6 +103,10 @@
                     <div class="cart-total">
                         <span>Итого:</span>
                         <span id="cartTotal">0 RSD</span>
+                    </div>
+                    <div class="payment-method">
+                        <span>Способ оплаты:</span>
+                        <span>Наличными при доставке</span>
                     </div>
                 </div>
             </div>

@@ -373,6 +373,23 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
+// Date button selection handler
+const dateButtons = document.querySelectorAll('.date-btn');
+const deliveryDateInput = document.getElementById('deliveryDate');
+
+dateButtons.forEach(button => {
+    button.addEventListener('click', function() {
+        // Remove selected class from all buttons
+        dateButtons.forEach(btn => btn.classList.remove('selected'));
+
+        // Add selected class to clicked button
+        this.classList.add('selected');
+
+        // Update hidden input value
+        deliveryDateInput.value = this.getAttribute('data-value');
+    });
+});
+
 // Form submission handler
 const checkoutForm = document.getElementById('checkoutForm');
 const formMessage = document.getElementById('formMessage');
@@ -391,7 +408,6 @@ checkoutForm.addEventListener('submit', async function(e) {
     const formData = new FormData(checkoutForm);
     const customerName = formData.get('customerName').trim();
     const customerContact = formData.get('customerContact').trim();
-    const customerEmail = formData.get('customerEmail').trim();
     const deliveryAddress = formData.get('deliveryAddress').trim();
     const deliveryDate = formData.get('deliveryDate');
     const comments = formData.get('comments').trim();
@@ -417,17 +433,10 @@ checkoutForm.addEventListener('submit', async function(e) {
         return;
     }
 
-    // Validate email format if provided
-    if (customerEmail && !isValidEmail(customerEmail)) {
-        showFormMessage('Пожалуйста, введите корректный email адрес.', 'error');
-        return;
-    }
-
     // Build order data
     const orderData = {
         customer_name: customerName,
         customer_contact: customerContact,
-        customer_email: customerEmail || '',
         delivery_address: deliveryAddress,
         delivery_date: deliveryDate,
         comments: comments || '',
@@ -479,12 +488,6 @@ function showFormMessage(message, type) {
     formMessage.textContent = message;
     formMessage.className = `form-message ${type}`;
     formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-// Helper function to validate email
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
 }
 
 
