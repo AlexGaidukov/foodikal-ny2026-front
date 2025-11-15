@@ -66,7 +66,7 @@ header {
 
 .logo {
     padding: 20px;
-    padding-top: 10px;
+    padding-top: 30px;
     position: absolute;
     width: 160px;
 }
@@ -257,8 +257,13 @@ header {
 }
 
 .order:hover {
-    background-color: rgba(200, 10, 10, 0.9);
+    background-color: rgba(200, 20, 20, 0.9);
     transition: background-color 0.2s;
+}
+
+#bottom {
+    display: flex;
+    justify-content: center;
 }
 
 .cart-icon {

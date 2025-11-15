@@ -77,7 +77,7 @@ let data = {};
 let cart = [];
 
 
-const orderButton = document.querySelector('.order');
+const orderButton = document.querySelectorAll('.order');
 const cartModal = document.getElementById('cartModal');
 const cartOverlay = document.getElementById('cartOverlay');
 const closeCartButton = document.querySelector('.close-cart');
@@ -346,11 +346,14 @@ function updateCartDisplay() {
 }
 
 // Event listeners for cart modal
-orderButton.addEventListener('click', function() {
+for (let button of orderButton) {
+    button.addEventListener('click', function() {
     cartModal.classList.add('active');
     cartOverlay.classList.add('active');
     document.body.style.overflow = 'hidden';
 });
+}
+
 
 closeCartButton.addEventListener('click', function() {
     cartModal.classList.remove('active');
