@@ -91,11 +91,15 @@ function createProductCard(element) {
     card.className = "cardMenuItem";
     card.dataset.id = element.id;
 
-    // Ensure image path has images/ prefix
-    const imagePath = element.image.startsWith('images/') ? element.image : `images/${element.image}`;
+    // Use placeholder if no image is provided
+    let imagePath = 'images/photos/placeholder.jpg';
+    if (element.image && element.image.trim() !== '') {
+        // Ensure image path has images/ prefix
+        imagePath = element.image.startsWith('images/') ? element.image : `images/${element.image}`;
+    }
 
     card.innerHTML = `
-        <img class="itemImage" src="${imagePath}" alt="${element.name}">
+        <img class="itemImage" src="${imagePath}" alt="${element.name}" onerror="this.src='images/photos/placeholder.jpg'">
         <h2 class="itemTitle">${element.name}</h2>
         <div class="itemDescription">${element.description}</div>
         <div class="itemRow">
