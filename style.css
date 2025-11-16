@@ -1,5 +1,6 @@
 body {
-    background-color: #2B374D;
+    background-color: #3C5177;
+    background-image: url(images/body-bg.png);
     position: sticky;
     background-attachment: fixed;
     background-size: cover;
@@ -264,6 +265,7 @@ header {
 #bottom {
     display: flex;
     justify-content: center;
+    padding: 40px;
 }
 
 .cart-icon {
