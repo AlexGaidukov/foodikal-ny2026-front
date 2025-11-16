@@ -16,12 +16,35 @@ header {
     top: 0;
     height: 150px;
     align-items: center;
+    display: flex;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.cta {
+    padding-top: 20px;
+    padding-right: 20px;
+    padding-left: 20px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-style: italic;
+    margin: 0 auto;
+    font-weight: normal;
+    text-align: center;
+}
+
+.header_text {
+    margin: 0px;
+    color: white;
 }
 
 .navbar {
     position: sticky;
     top: 20px;
-    overflow: hidden;
+    overflow: scroll;
+    scroll-controls: hidden;
     text-align: center;
     padding-bottom: 20px;
     display: flex;
@@ -31,6 +54,10 @@ header {
     width: 60%;
     align: center;
     margin: 0 auto;
+}
+
+.navbar::-webkit-scrollbar {
+    display: none;
 }
 
 .category {
@@ -68,8 +95,8 @@ header {
 .logo {
     padding: 20px;
     padding-top: 30px;
-    position: absolute;
-    width: 160px;
+    position: fixed;
+    left: 0;
 }
 
 .container {
@@ -242,19 +269,17 @@ header {
     color: rgba(255, 255, 255, 0.9);
     cursor: pointer;
     float: right;
-    text-align: right;
     margin-right: 20px;
-    margin-top: 60px;
+    margin-bottom: 0px;
+    margin-left: auto;
     font-family: Jost;
     height: 60px;
     z-index: 100;
     -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
     border-radius: 20px;
-    color: #ffffff;
-    margin-bottom: 0px;
-    border: none;
-    cursor: pointer;
+    position: fixed;
+    right: 0;
 }
 
 .order:hover {
@@ -266,6 +291,12 @@ header {
     display: flex;
     justify-content: center;
     padding: 40px;
+    align-items: center;
+}
+
+#bottom-center {
+    margin: auto;
+    position: relative;
 }
 
 .cart-icon {
