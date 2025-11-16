@@ -1,5 +1,5 @@
 body {
-    background-color: #043315;
+    background-color: #2B374D;
     position: sticky;
     background-attachment: fixed;
     background-size: cover;
@@ -9,7 +9,7 @@ body {
 }
 
 header {
-    background-image: url(images/header_bg.png);
+    background-image: url(images/header-bg-image.png);
     background-size: cover;
     position: sticky;
     top: 0;
@@ -88,7 +88,7 @@ header {
 .cardMenuItem {
     padding: 10px;
     border-radius: 15px;
-    background-color: #0b4921;
+    background-color: #6E5A42;
     width: 310px;
     text-align: left;
     transition: transform 0.3s;
@@ -243,7 +243,7 @@ header {
     float: right;
     text-align: right;
     margin-right: 20px;
-    margin-top: 20px;
+    margin-top: 60px;
     font-family: Jost;
     height: 60px;
     z-index: 100;
