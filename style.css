@@ -9,6 +9,7 @@ body {
     padding: 0px;
     font-family: Jost, Arial, sans-serif;
     overflow-x: hidden;
+    overflow-y: auto;
 }
 
 header {
@@ -24,6 +25,7 @@ header {
     justify-content: center;
     position: relative;
     flex-wrap: wrap;
+    overflow: hidden;
 }
 
 .navbar {
@@ -54,7 +56,7 @@ h1 {
     font-family: Jost;
     margin: auto;
     text-align: center;
-    min-width: 600px;
+    min-width: 400px;
     max-width: 800px;
     transform: rotate(8deg);
     display: inline-block;
@@ -116,6 +118,7 @@ h1 {
     margin: 0 auto;
     padding: 20px;
     z-index: 20;
+    overflow-x: hidden;
 }
 
 .products-grid {
@@ -123,6 +126,7 @@ h1 {
     grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
     gap: 20px;
     justify-content: center;
+    overflow-x: hidden;
 }
 
 .cardMenuItem {
@@ -240,6 +244,7 @@ h1 {
 
     .products-grid {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        justify-items: center;
     }
 
     .cardMenuItem {
