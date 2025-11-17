@@ -1,65 +1,68 @@
 body {
     background-color: #3C5177;
     background-image: url(images/body-bg.png);
-    position: sticky;
-    background-attachment: fixed;
+    background-repeat: repeat-y;
+    background-position: center; /* центрирование фона */
     background-size: cover;
+    position: sticky;
     margin: 0px;
     padding: 0px;
     font-family: Jost, Arial, sans-serif;
+    overflow: hidden;
 }
 
 header {
     background-image: url(images/header-bg-image.png);
+    background-repeat: no-repeat;
+    background-position: center; /* центрирование фона */
     background-size: cover;
     position: sticky;
     top: 0;
     height: 200px;
     align-items: center;
     display: flex;
-    display: flex;
-    align-items: center;
+    justify-content: center;
     position: relative;
-}
-
-h1 {
-    font-weight: normal;
-    font-size: 32pt;
-}
-
-.cta {
-    padding-right: 20px;
-    padding-left: 20px;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: Rubik;
-    font-style: italic;
-    margin: 0 auto;
-    font-weight: normal;
-    text-align: center;
-    line-height: 240%;
-}
-
-.header_text {
-    margin: 0px;
-    color: white;
+    flex-wrap: wrap;
 }
 
 .navbar {
     position: sticky;
     top: 20px;
-    overflow: scroll;
-    scroll-controls: hidden;
     text-align: center;
     padding-bottom: 20px;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    width: 60%;
-    min-width: 800px;
-    align: center;
     margin: 0 auto;
+    overflow: auto;
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    text-align: left;
+    padding-left: 20px;  /* отступ слева, чтобы не прилипало к самому краю */
+  }
+}
+
+h1 {
+    font-size:2.6vw;
+}
+
+.cta {
+    padding: 20px;
+    position: absolute;
+    transform: translateX(-50%);
+    font-family: Jost;
+    margin: auto;
+    text-align: center;
+    min-width: 600px;
+    max-width: 800px;
+    transform: rotate(8deg);
+    display: inline-block;
+}
+
+.header_text {
+    margin: 0px;
+    color: white;
 }
 
 .navbar::-webkit-scrollbar {
@@ -229,10 +232,6 @@ h1 {
 }
 
 @media (max-width: 768px) {
-    .navbar {
-        gap: 10px;
-        padding: 10px;
-    }
 
     .category {
         font-size: 12.5pt;
@@ -253,16 +252,6 @@ h1 {
 }
 
 @media (max-width: 480px) {
-    .navbar {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .category {
-        width: 80%;
-        margin-bottom: 10px;
-    }
-
     .products-grid {
         grid-template-columns: 1fr;
         justify-items: center;
