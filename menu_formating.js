@@ -100,12 +100,14 @@ function createProductCard(element) {
 
     card.innerHTML = `
         <img class="itemImage" src="${imagePath}" alt="${element.name}" onerror="this.src='images/photos/placeholder.jpg'">
-        <h2 class="itemTitle">${element.name}</h2>
-        <div class="itemDescription">${element.description}</div>
-        <div class="itemRow">
-            <div class="itemPrice">${element.price} RSD</div>
-            <div class="quantity-controls">
-                <button class="addItem">+</button>
+        <div class="itemText">
+            <h2 class="itemTitle">${element.name}</h2>
+            <div class="itemDescription">${element.description}</div>
+            <div class="itemRow">
+                <div class="itemPrice">${element.price} RSD</div>
+                <div class="quantity-controls">
+                    <button class="addItem">+</button>
+                </div>
             </div>
         </div>
     `;

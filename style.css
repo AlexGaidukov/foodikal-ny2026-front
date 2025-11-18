@@ -673,7 +673,7 @@ h1 {
 
   .cardMenuItem {
     flex-direction: row;
-    width: 80%;
+    width: 90vw;
     height: auto;
   }
 
