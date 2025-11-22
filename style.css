@@ -1,3 +1,9 @@
+@font-face {
+    font-family: MyJost;
+    src: url("Jost-VariableFont_wght.woff");
+    weight: 100;
+}
+
 body {
     background-color: #3C5177;
     background-image: url(images/body-bg.png);
@@ -27,6 +33,7 @@ header {
     flex-wrap: wrap;
     overflow: hidden;
     z-index: 2;
+    font-family: Jost, Arial, sans-serif;
 }
 
 .navbar {
@@ -38,6 +45,7 @@ header {
     overflow: auto;
     white-space: nowrap;
     z-index: 3;
+    font-family: Jost, Arial, sans-serif;
 }
 
 
@@ -56,6 +64,7 @@ h1 {
     max-width: 800px;
     transform: rotate(8deg);
     display: inline-block;
+    font-family: Jost, Arial, sans-serif;
 }
 
 .header_text {
@@ -715,5 +724,6 @@ h1 {
     .container {
         justify-items: center;
         max-width: none;
+        margin-top: 20px;
     }
 }
