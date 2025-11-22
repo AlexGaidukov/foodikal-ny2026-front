@@ -90,6 +90,8 @@ h1 {
     background-color: rgba(255, 255, 255, 0.6);
 }
 
+
+
 .main {
     margin-left: 200px;
     margin-right: 200px;
@@ -110,7 +112,7 @@ h1 {
 }
 
 .container {
-    max-width: 1000px;
+    max-width: 75%;
     margin: 0 auto;
     padding: 20px;
     z-index: 20;
@@ -120,7 +122,7 @@ h1 {
 .products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-    gap: 20px;
+    row-gap: 25px;
     justify-content: center;
     overflow-x: hidden;
 }
@@ -223,6 +225,7 @@ h1 {
 
 .tab-content.active {
     display: block;
+    overflow-x: visible;
 }
 
 .empty-state {
@@ -244,7 +247,7 @@ h1 {
     color: rgba(255, 255, 255, 0.9);
     cursor: pointer;
     float: right;
-    margin-right: 20px;
+    margin-right: 4%;
     margin-left: auto;
     font-family: Jost;
     height: 60px;
@@ -711,5 +714,6 @@ h1 {
 
     .container {
         justify-items: center;
+        max-width: none;
     }
 }
