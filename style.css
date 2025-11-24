@@ -318,13 +318,14 @@ h1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 20px;
+    padding: 6px 20px;
     border-bottom: 1px solid #eee;
 }
 
 .cart-title {
     font-size: 22px;
     font-weight: 600;
+    margin: 0;
 }
 
 .close-cart {
@@ -426,7 +427,7 @@ h1 {
 
 /* Promo Code Section */
 .promo-section {
-    padding: 15px 20px;
+    padding: 15px 20px 6px 20px;
     border-top: 1px solid #f1f1f1;
     background-color: #fafafa;
 }
@@ -477,7 +478,7 @@ h1 {
 
 .cart-total {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     font-size: 20px;
     font-weight: 700;
     color: #333;

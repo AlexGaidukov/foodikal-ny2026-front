@@ -329,25 +329,20 @@ function updateCartDisplay() {
     if (cart.length === 0) {
         cartItemsContainer.innerHTML = '<div class="empty-cart-message">Ваша корзина пуста</div>';
         cartTotalElement.textContent = '0 RSD';
-        // Reset promo when cart is empty
+        // Reset promo validation state but keep the input value
         appliedPromoCode = null;
-        promoDiscount = 0;
         promoValidationCache = null;
-        updatePromoDisplay();
+        // Update promo display to show "add items" message if code is entered
+        if (promoInput && promoInput.value.trim()) {
+            updatePromoDisplay();
+        }
         return;
     }
 
-    // Check if cart has changed since last promo validation
-    const currentCartSnapshot = JSON.stringify(cart);
-    if (appliedPromoCode && promoValidationCache) {
-        if (promoValidationCache.cartSnapshot !== currentCartSnapshot) {
-            // Cart changed - invalidate cache and re-validate
-            promoValidationCache = null;
-            // Trigger re-validation
-            if (promoInput && promoInput.value.trim()) {
-                updatePromoDisplay();
-            }
-        }
+    // Auto-validate promo if user entered code but hasn't validated yet
+    if (!appliedPromoCode && promoInput && promoInput.value.trim().length >= 3) {
+        // No promo applied yet but user has entered a code - validate it now
+        updatePromoDisplay();
     }
 
     // Add each item to the cart display
@@ -371,15 +366,17 @@ function updateCartDisplay() {
     // Calculate subtotal
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    // Use server-calculated values if available, otherwise calculate locally
+    // Calculate discount locally if promo is applied
     let total, discountAmount;
 
-    if (appliedPromoCode && promoValidationCache && promoValidationCache.cartSnapshot === currentCartSnapshot) {
-        // Use server-calculated values from cache
-        discountAmount = promoValidationCache.discountAmount;
-        total = promoValidationCache.finalTotal;
+    if (appliedPromoCode) {
+        // Calculate 5% discount
+        const discountedPrice = subtotal * 0.95;
+        // Round final price to nearest 50 RSD
+        total = Math.round(discountedPrice / 50) * 50;
+        discountAmount = subtotal - total;
     } else {
-        // No promo or cache invalid - just show subtotal
+        // No promo applied
         discountAmount = 0;
         total = subtotal;
     }
@@ -387,19 +384,15 @@ function updateCartDisplay() {
     // Update display based on whether promo is applied
     const cartTotalSection = document.getElementById('cartTotalSection');
 
-    if (appliedPromoCode && discountAmount > 0 && promoValidationCache) {
-        // Show breakdown with server-calculated values
+    if (appliedPromoCode && discountAmount > 0) {
+        // Show total with strikethrough and discounted total in green
         cartTotalSection.innerHTML = `
             <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                <span>Промежуточный итог:</span>
-                <span>${subtotal} RSD</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; color: #28a745;">
-                <span>Скидка:</span>
-                <span>-${discountAmount} RSD</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid #ddd; font-weight: 700;">
                 <span>Итого:</span>
+                <span style="text-decoration: line-through;">${subtotal} RSD</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; color: #28a745; font-weight: 700;">
+                <span>Итого со скидкой:</span>
                 <span id="cartTotal">${total} RSD</span>
             </div>
         `;
@@ -495,10 +488,12 @@ async function updatePromoDisplay() {
     if (!code) {
         promoMessage.textContent = '';
         promoMessage.className = 'promo-message';
-        appliedPromoCode = null;
-        promoDiscount = 0;
-        promoValidationCache = null;
-        updateCartDisplay();
+        // Only update cart if we're clearing an applied promo
+        if (appliedPromoCode) {
+            appliedPromoCode = null;
+            promoValidationCache = null;
+            updateCartDisplay();
+        }
         return;
     }
 
@@ -506,31 +501,20 @@ async function updatePromoDisplay() {
     if (code.length < 3) {
         promoMessage.textContent = 'Минимум 3 символа';
         promoMessage.className = 'promo-message error';
-        appliedPromoCode = null;
-        promoDiscount = 0;
-        promoValidationCache = null;
-        updateCartDisplay();
         return;
     }
 
     if (!/^[A-Z0-9А-ЯЁ]+$/u.test(code)) {
         promoMessage.textContent = 'Только буквы и цифры';
         promoMessage.className = 'promo-message error';
-        appliedPromoCode = null;
-        promoDiscount = 0;
-        promoValidationCache = null;
-        updateCartDisplay();
         return;
     }
 
     // Check if cart is empty
     if (cart.length === 0) {
         promoMessage.textContent = 'Добавьте товары в корзину';
-        promoMessage.className = 'promo-message error';
-        appliedPromoCode = null;
-        promoDiscount = 0;
-        promoValidationCache = null;
-        updateCartDisplay();
+        promoMessage.className = 'promo-message';
+        // Don't clear promo code - it will auto-validate when items are added
         return;
     }
 
@@ -566,25 +550,11 @@ async function validatePromoWithServer(code) {
 
         if (result.valid) {
             appliedPromoCode = code;
-            promoDiscount = result.discountAmount || 0;
-            promoValidationCache = {
-                code: code,
-                subtotal: result.subtotal,
-                discountAmount: result.discountAmount,
-                finalTotal: result.finalTotal,
-                cartSnapshot: JSON.stringify(cart) // To detect cart changes
-            };
-
-            if (promoDiscount > 0) {
-                promoMessage.textContent = `✓ Промокод применен! Скидка: ${promoDiscount} RSD`;
-                promoMessage.className = 'promo-message success';
-            } else {
-                promoMessage.textContent = '✓ Промокод принят';
-                promoMessage.className = 'promo-message success';
-            }
+            promoValidationCache = { code: code }; // Just mark as validated
+            promoMessage.textContent = 'Промокод применен!';
+            promoMessage.className = 'promo-message success';
         } else {
             appliedPromoCode = null;
-            promoDiscount = 0;
             promoValidationCache = null;
             promoMessage.textContent = `✗ ${result.error || 'Промокод недействителен'}`;
             promoMessage.className = 'promo-message error';
@@ -596,7 +566,6 @@ async function validatePromoWithServer(code) {
         promoMessage.textContent = '✗ Ошибка проверки промокода';
         promoMessage.className = 'promo-message error';
         appliedPromoCode = null;
-        promoDiscount = 0;
         promoValidationCache = null;
         updateCartDisplay();
     } finally {
@@ -723,7 +692,6 @@ checkoutForm.addEventListener('submit', async function(e) {
 
         // Clear promo cache
         appliedPromoCode = null;
-        promoDiscount = 0;
         promoValidationCache = null;
 
         // Scroll to message
@@ -734,7 +702,6 @@ checkoutForm.addEventListener('submit', async function(e) {
         if (error.details && error.details.promo_code) {
             // Clear invalid promo code
             appliedPromoCode = null;
-            promoDiscount = 0;
             promoValidationCache = null;
 
             // Show error in promo section
