@@ -38,10 +38,6 @@ class FoodikalAPI {
                 body: JSON.stringify(orderData)
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
             const result = await response.json();
             console.log('Order API response:', result);
 
@@ -52,13 +48,11 @@ class FoodikalAPI {
                     message: result.message
                 };
             } else {
-                // Include details if available
-                const errorMessage = result.error || 'Failed to create order';
-                if (result.details) {
-                    console.error('Order validation errors:', result.details);
-                    throw new Error(`${errorMessage}: ${JSON.stringify(result.details)}`);
-                }
-                throw new Error(errorMessage);
+                // Create a structured error with details
+                const error = new Error(result.error || 'Failed to create order');
+                error.details = result.details || null;
+                error.statusCode = response.status;
+                throw error;
             }
         } catch (error) {
             console.error('Failed to create order:', error);
@@ -75,6 +69,8 @@ let data = {};
 
 // Cart state
 let cart = [];
+let appliedPromoCode = null;
+let promoDiscount = 0;
 
 
 const orderButton = document.querySelectorAll('.order');
@@ -287,6 +283,10 @@ function updateCartDisplay() {
     if (cart.length === 0) {
         cartItemsContainer.innerHTML = '<div class="empty-cart-message">Ваша корзина пуста</div>';
         cartTotalElement.textContent = '0 RSD';
+        // Reset promo when cart is empty
+        appliedPromoCode = null;
+        promoDiscount = 0;
+        updatePromoDisplay();
         return;
     }
 
@@ -308,9 +308,45 @@ function updateCartDisplay() {
         cartItemsContainer.appendChild(cartItemElement);
     });
 
-    // Calculate and display total
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    cartTotalElement.textContent = `${total} RSD`;
+    // Calculate subtotal
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    // Update promo discount based on current subtotal
+    if (appliedPromoCode) {
+        promoDiscount = Math.floor(subtotal * 0.05);
+    } else {
+        promoDiscount = 0;
+    }
+
+    // Calculate final total
+    const total = subtotal - promoDiscount;
+
+    // Update display based on whether promo is applied
+    const cartTotalSection = document.getElementById('cartTotalSection');
+
+    if (appliedPromoCode && promoDiscount > 0) {
+        // Show breakdown: Subtotal, Discount, Total
+        cartTotalSection.innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>Промежуточный итог:</span>
+                <span>${subtotal} RSD</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; color: #28a745;">
+                <span>Скидка (5%):</span>
+                <span>-${promoDiscount} RSD</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid #ddd; font-weight: 700;">
+                <span>Итого:</span>
+                <span id="cartTotal">${total} RSD</span>
+            </div>
+        `;
+    } else {
+        // Show just total
+        cartTotalSection.innerHTML = `
+            <span>Итого:</span>
+            <span id="cartTotal">${total} RSD</span>
+        `;
+    }
 
     // Add event listeners to cart item controls
     document.querySelectorAll('.cart-item-controls .plus-btn').forEach(btn => {
@@ -377,6 +413,67 @@ document.addEventListener('keydown', function(e) {
         document.body.style.overflow = 'auto';
     }
 });
+
+// Promo code handler
+const promoInput = document.getElementById('promoCode');
+const promoMessage = document.getElementById('promoMessage');
+
+function updatePromoDisplay() {
+    if (!promoInput) return;
+
+    const code = promoInput.value.trim().toUpperCase();
+
+    if (!code) {
+        promoMessage.textContent = '';
+        promoMessage.className = 'promo-message';
+        appliedPromoCode = null;
+        promoDiscount = 0;
+        updateCartDisplay();
+        return;
+    }
+
+    // Client-side validation
+    if (code.length < 3) {
+        promoMessage.textContent = 'Минимум 3 символа';
+        promoMessage.className = 'promo-message error';
+        appliedPromoCode = null;
+        promoDiscount = 0;
+        updateCartDisplay();
+        return;
+    }
+
+    if (!/^[A-Z0-9]+$/.test(code)) {
+        promoMessage.textContent = 'Только буквы и цифры';
+        promoMessage.className = 'promo-message error';
+        appliedPromoCode = null;
+        promoDiscount = 0;
+        updateCartDisplay();
+        return;
+    }
+
+    // Valid format - will be validated on server
+    appliedPromoCode = code;
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const discount = Math.floor(subtotal * 0.05);
+
+    if (discount > 0) {
+        promoMessage.textContent = `✓ Скидка ${discount} RSD будет применена`;
+        promoMessage.className = 'promo-message success';
+    } else {
+        promoMessage.textContent = '';
+        promoMessage.className = 'promo-message';
+    }
+
+    updateCartDisplay();
+}
+
+// Auto-uppercase and validate on input
+if (promoInput) {
+    promoInput.addEventListener('input', function(e) {
+        e.target.value = e.target.value.toUpperCase();
+        updatePromoDisplay();
+    });
+}
 
 // Date button selection handler
 const dateButtons = document.querySelectorAll('.date-btn');
@@ -451,6 +548,11 @@ checkoutForm.addEventListener('submit', async function(e) {
         }))
     };
 
+    // Add promo code if applied
+    if (appliedPromoCode) {
+        orderData.promo_code = appliedPromoCode;
+    }
+
     // Disable submit button
     submitOrderBtn.disabled = true;
     submitOrderBtn.textContent = 'Отправка...';
@@ -472,15 +574,47 @@ checkoutForm.addEventListener('submit', async function(e) {
         // Reset form
         checkoutForm.reset();
 
+        // Clear promo code input and message
+        if (promoInput) {
+            promoInput.value = '';
+            promoMessage.textContent = '';
+            promoMessage.className = 'promo-message';
+        }
+
         // Scroll to message
         formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     } catch (error) {
-        // Show error message
-        showFormMessage(
-            `Ошибка при создании заказа: ${error.message}. Пожалуйста, попробуйте еще раз или свяжитесь с нами напрямую.`,
-            'error'
-        );
+        // Check if error is related to invalid promo code
+        if (error.details && error.details.promo_code) {
+            // Clear invalid promo code
+            appliedPromoCode = null;
+            promoDiscount = 0;
+
+            // Show error in promo section
+            promoMessage.textContent = '✗ ' + error.details.promo_code;
+            promoMessage.className = 'promo-message error';
+
+            // Update cart display to remove discount
+            updateCartDisplay();
+
+            // Show general error message
+            showFormMessage(
+                'Промокод недействителен. Пожалуйста, проверьте код или продолжите без промокода.',
+                'error'
+            );
+
+            // Scroll to promo section to make error visible
+            if (promoInput) {
+                promoInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        } else {
+            // Show generic error message
+            showFormMessage(
+                `Ошибка при создании заказа: ${error.message}. Пожалуйста, попробуйте еще раз или свяжитесь с нами напрямую.`,
+                'error'
+            );
+        }
     } finally {
         // Re-enable submit button
         submitOrderBtn.disabled = false;

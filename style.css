@@ -279,6 +279,7 @@ h1 {
     justify-content: center;
     padding: 40px;
     align-items: center;
+    padding-bottom: 30px;
 }
 
 #bottom-center {
@@ -421,6 +422,51 @@ h1 {
     font-weight: 500;
     min-width: 25px;
     text-align: center;
+}
+
+/* Promo Code Section */
+.promo-section {
+    padding: 15px 20px;
+    border-top: 1px solid #f1f1f1;
+    background-color: #fafafa;
+}
+
+.promo-section label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.promo-section input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    font-family: Jost, Arial, sans-serif;
+    text-transform: uppercase;
+    box-sizing: border-box;
+}
+
+.promo-section input:focus {
+    outline: none;
+    border-color: #e74c3c;
+}
+
+.promo-message {
+    margin-top: 8px;
+    font-size: 13px;
+    min-height: 18px;
+}
+
+.promo-message.success {
+    color: #28a745;
+}
+
+.promo-message.error {
+    color: #dc3545;
 }
 
 .cart-footer {
