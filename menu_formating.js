@@ -470,7 +470,10 @@ function updatePromoDisplay() {
 // Auto-uppercase and validate on input
 if (promoInput) {
     promoInput.addEventListener('input', function(e) {
-        e.target.value = e.target.value.toUpperCase();
+        const upperValue = e.target.value.toUpperCase();
+        if (e.target.value !== upperValue) {
+            e.target.value = upperValue;
+        }
         updatePromoDisplay();
     });
 }
