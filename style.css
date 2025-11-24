@@ -419,6 +419,11 @@ h1 {
     gap: 10px;
 }
 
+.cart-item-controls .minus-btn:hover,
+.cart-item-controls .plus-btn:hover {
+    background-color: rgba(112, 131, 109, 0.8);
+}
+
 .cart-item-quantity {
     font-weight: 500;
     min-width: 25px;
