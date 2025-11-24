@@ -534,8 +534,8 @@ async function validatePromoWithServer(code) {
     isValidatingPromo = true;
 
     try {
-        // Prepare cart items for API
-        const orderItems = cart.map(item => ({
+        // Prepare cart items for API (limit to 20 for validation)
+        const orderItems = cart.slice(0, 20).map(item => ({
             item_id: item.id,
             quantity: item.quantity
         }));
