@@ -340,8 +340,9 @@ function updateCartDisplay() {
     }
 
     // Auto-validate promo if user entered code but hasn't validated yet
-    if (!appliedPromoCode && promoInput && promoInput.value.trim().length >= 3) {
-        // No promo applied yet but user has entered a code - validate it now
+    const currentCode = promoInput ? promoInput.value.trim().toUpperCase() : '';
+    if (currentCode.length >= 3 && !appliedPromoCode && (!promoValidationCache || promoValidationCache.code !== currentCode)) {
+        // No promo applied yet and not validated - validate it now
         updatePromoDisplay();
     }
 
@@ -518,6 +519,12 @@ async function updatePromoDisplay() {
         return;
     }
 
+    // Check if we already validated this exact code
+    if (promoValidationCache && promoValidationCache.code === code) {
+        // Already validated - don't validate again
+        return;
+    }
+
     // Show loading state
     promoMessage.textContent = 'Проверка промокода...';
     promoMessage.className = 'promo-message';
@@ -550,12 +557,12 @@ async function validatePromoWithServer(code) {
 
         if (result.valid) {
             appliedPromoCode = code;
-            promoValidationCache = { code: code }; // Just mark as validated
+            promoValidationCache = { code: code, valid: true };
             promoMessage.textContent = 'Промокод применен!';
             promoMessage.className = 'promo-message success';
         } else {
             appliedPromoCode = null;
-            promoValidationCache = null;
+            promoValidationCache = { code: code, valid: false }; // Cache invalid result
             promoMessage.textContent = `✗ ${result.error || 'Промокод недействителен'}`;
             promoMessage.className = 'promo-message error';
         }
