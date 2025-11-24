@@ -513,7 +513,7 @@ async function updatePromoDisplay() {
         return;
     }
 
-    if (!/^[A-Z0-9]+$/.test(code)) {
+    if (!/^[A-Z0-9А-ЯЁ]+$/u.test(code)) {
         promoMessage.textContent = 'Только буквы и цифры';
         promoMessage.className = 'promo-message error';
         appliedPromoCode = null;
