@@ -419,17 +419,6 @@ h1 {
     gap: 10px;
 }
 
-.cart-item-controls .minus-btn,
-.cart-item-controls .plus-btn {
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.cart-item:hover .cart-item-controls .minus-btn,
-.cart-item:hover .cart-item-controls .plus-btn {
-    opacity: 1;
-}
-
 .cart-item-quantity {
     font-weight: 500;
     min-width: 25px;
