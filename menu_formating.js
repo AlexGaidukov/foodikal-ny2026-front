@@ -59,6 +59,47 @@ class FoodikalAPI {
             throw error;
         }
     }
+
+    async validatePromoCode(promoCode, orderItems) {
+        try {
+            console.log('Validating promo code:', promoCode);
+
+            const response = await fetch(`${this.baseURL}/api/validate_promo`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    promo_code: promoCode,
+                    order_items: orderItems
+                })
+            });
+
+            const result = await response.json();
+            console.log('Promo validation response:', result);
+
+            if (result.success) {
+                return {
+                    valid: result.valid,
+                    subtotal: result.subtotal,
+                    discountAmount: result.discount_amount,
+                    finalTotal: result.final_total,
+                    error: result.error || null
+                };
+            } else {
+                return {
+                    valid: false,
+                    error: result.error || 'Failed to validate promo code'
+                };
+            }
+        } catch (error) {
+            console.error('Failed to validate promo code:', error);
+            return {
+                valid: false,
+                error: 'Network error: Could not validate promo code'
+            };
+        }
+    }
 }
 
 // Initialize API
@@ -71,6 +112,11 @@ let data = {};
 let cart = [];
 let appliedPromoCode = null;
 let promoDiscount = 0;
+
+// Promo validation cache
+let promoValidationCache = null; // Stores last validation result from server
+let promoDebounceTimer = null; // Timer for debouncing API calls
+let isValidatingPromo = false; // Flag to prevent concurrent validations
 
 
 const orderButton = document.querySelectorAll('.order');
@@ -286,8 +332,22 @@ function updateCartDisplay() {
         // Reset promo when cart is empty
         appliedPromoCode = null;
         promoDiscount = 0;
+        promoValidationCache = null;
         updatePromoDisplay();
         return;
+    }
+
+    // Check if cart has changed since last promo validation
+    const currentCartSnapshot = JSON.stringify(cart);
+    if (appliedPromoCode && promoValidationCache) {
+        if (promoValidationCache.cartSnapshot !== currentCartSnapshot) {
+            // Cart changed - invalidate cache and re-validate
+            promoValidationCache = null;
+            // Trigger re-validation
+            if (promoInput && promoInput.value.trim()) {
+                updatePromoDisplay();
+            }
+        }
     }
 
     // Add each item to the cart display
@@ -311,29 +371,32 @@ function updateCartDisplay() {
     // Calculate subtotal
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    // Update promo discount based on current subtotal
-    if (appliedPromoCode) {
-        promoDiscount = Math.floor(subtotal * 0.05);
-    } else {
-        promoDiscount = 0;
-    }
+    // Use server-calculated values if available, otherwise calculate locally
+    let total, discountAmount;
 
-    // Calculate final total
-    const total = subtotal - promoDiscount;
+    if (appliedPromoCode && promoValidationCache && promoValidationCache.cartSnapshot === currentCartSnapshot) {
+        // Use server-calculated values from cache
+        discountAmount = promoValidationCache.discountAmount;
+        total = promoValidationCache.finalTotal;
+    } else {
+        // No promo or cache invalid - just show subtotal
+        discountAmount = 0;
+        total = subtotal;
+    }
 
     // Update display based on whether promo is applied
     const cartTotalSection = document.getElementById('cartTotalSection');
 
-    if (appliedPromoCode && promoDiscount > 0) {
-        // Show breakdown: Subtotal, Discount, Total
+    if (appliedPromoCode && discountAmount > 0 && promoValidationCache) {
+        // Show breakdown with server-calculated values
         cartTotalSection.innerHTML = `
             <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
                 <span>Промежуточный итог:</span>
                 <span>${subtotal} RSD</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 5px; color: #28a745;">
-                <span>Скидка (5%):</span>
-                <span>-${promoDiscount} RSD</span>
+                <span>Скидка:</span>
+                <span>-${discountAmount} RSD</span>
             </div>
             <div style="display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid #ddd; font-weight: 700;">
                 <span>Итого:</span>
@@ -418,26 +481,34 @@ document.addEventListener('keydown', function(e) {
 const promoInput = document.getElementById('promoCode');
 const promoMessage = document.getElementById('promoMessage');
 
-function updatePromoDisplay() {
+async function updatePromoDisplay() {
     if (!promoInput) return;
 
     const code = promoInput.value.trim().toUpperCase();
+
+    // Clear debounce timer
+    if (promoDebounceTimer) {
+        clearTimeout(promoDebounceTimer);
+        promoDebounceTimer = null;
+    }
 
     if (!code) {
         promoMessage.textContent = '';
         promoMessage.className = 'promo-message';
         appliedPromoCode = null;
         promoDiscount = 0;
+        promoValidationCache = null;
         updateCartDisplay();
         return;
     }
 
-    // Client-side validation
+    // Client-side format validation
     if (code.length < 3) {
         promoMessage.textContent = 'Минимум 3 символа';
         promoMessage.className = 'promo-message error';
         appliedPromoCode = null;
         promoDiscount = 0;
+        promoValidationCache = null;
         updateCartDisplay();
         return;
     }
@@ -447,24 +518,90 @@ function updatePromoDisplay() {
         promoMessage.className = 'promo-message error';
         appliedPromoCode = null;
         promoDiscount = 0;
+        promoValidationCache = null;
         updateCartDisplay();
         return;
     }
 
-    // Valid format - will be validated on server
-    appliedPromoCode = code;
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const discount = Math.floor(subtotal * 0.05);
-
-    if (discount > 0) {
-        promoMessage.textContent = `✓ Скидка ${discount} RSD будет применена`;
-        promoMessage.className = 'promo-message success';
-    } else {
-        promoMessage.textContent = '';
-        promoMessage.className = 'promo-message';
+    // Check if cart is empty
+    if (cart.length === 0) {
+        promoMessage.textContent = 'Добавьте товары в корзину';
+        promoMessage.className = 'promo-message error';
+        appliedPromoCode = null;
+        promoDiscount = 0;
+        promoValidationCache = null;
+        updateCartDisplay();
+        return;
     }
 
-    updateCartDisplay();
+    // Show loading state
+    promoMessage.textContent = 'Проверка промокода...';
+    promoMessage.className = 'promo-message';
+
+    // Debounce API call (500ms)
+    promoDebounceTimer = setTimeout(async () => {
+        await validatePromoWithServer(code);
+    }, 500);
+}
+
+async function validatePromoWithServer(code) {
+    if (isValidatingPromo) return;
+
+    isValidatingPromo = true;
+
+    try {
+        // Prepare cart items for API
+        const orderItems = cart.map(item => ({
+            item_id: item.id,
+            quantity: item.quantity
+        }));
+
+        // Call API to validate promo code
+        const result = await api.validatePromoCode(code, orderItems);
+
+        // Check if promo code still matches (user might have changed it)
+        if (promoInput.value.trim().toUpperCase() !== code) {
+            return; // User changed the code, ignore this result
+        }
+
+        if (result.valid) {
+            appliedPromoCode = code;
+            promoDiscount = result.discountAmount || 0;
+            promoValidationCache = {
+                code: code,
+                subtotal: result.subtotal,
+                discountAmount: result.discountAmount,
+                finalTotal: result.finalTotal,
+                cartSnapshot: JSON.stringify(cart) // To detect cart changes
+            };
+
+            if (promoDiscount > 0) {
+                promoMessage.textContent = `✓ Промокод применен! Скидка: ${promoDiscount} RSD`;
+                promoMessage.className = 'promo-message success';
+            } else {
+                promoMessage.textContent = '✓ Промокод принят';
+                promoMessage.className = 'promo-message success';
+            }
+        } else {
+            appliedPromoCode = null;
+            promoDiscount = 0;
+            promoValidationCache = null;
+            promoMessage.textContent = `✗ ${result.error || 'Промокод недействителен'}`;
+            promoMessage.className = 'promo-message error';
+        }
+
+        updateCartDisplay();
+    } catch (error) {
+        console.error('Promo validation error:', error);
+        promoMessage.textContent = '✗ Ошибка проверки промокода';
+        promoMessage.className = 'promo-message error';
+        appliedPromoCode = null;
+        promoDiscount = 0;
+        promoValidationCache = null;
+        updateCartDisplay();
+    } finally {
+        isValidatingPromo = false;
+    }
 }
 
 // Auto-uppercase and validate on input
@@ -584,6 +721,11 @@ checkoutForm.addEventListener('submit', async function(e) {
             promoMessage.className = 'promo-message';
         }
 
+        // Clear promo cache
+        appliedPromoCode = null;
+        promoDiscount = 0;
+        promoValidationCache = null;
+
         // Scroll to message
         formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
@@ -593,6 +735,7 @@ checkoutForm.addEventListener('submit', async function(e) {
             // Clear invalid promo code
             appliedPromoCode = null;
             promoDiscount = 0;
+            promoValidationCache = null;
 
             // Show error in promo section
             promoMessage.textContent = '✗ ' + error.details.promo_code;
