@@ -129,68 +129,71 @@ h1 {
 }
 
 .products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-    row-gap: 25px;
-    justify-content: center;
-    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
 }
 
 .cardMenuItem {
-    padding: 10px;
+    padding: 12px 16px;
     border-radius: 15px;
     background-color: #7a6a4e;
-    width: 310px;
+    width: 80%;
+    margin: 0 auto;
     text-align: left;
     transition: transform 0.3s;
     display: flex;
     flex-direction: column;
+    gap: 10px;
+    box-sizing: border-box;
+    opacity: 0.85;
 }
 
 
 .itemImage {
-    border-radius: 10px;
-    width: 300px;
-    padding: 5px;
-    height: 200px;
-    object-fit: cover;
+    display: none;
 }
 
-.itemTitle {
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-bottom: 5px;
-    margin: 0px;
-    font-size: 18pt;
-    line-height: 22pt;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.itemDescription {
-    font-size: 14pt;
-    line-height: 16pt;
-    padding: 5px;
-    color: rgba(255, 255, 255, 0.5);
-    min-height: 40px;
-}
-
-.itemRow {
+.card-top-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: auto;
-    padding: 5px;
-    bottom: 0;
+    gap: 20px;
+}
+
+.card-bottom-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.itemTitle {
+    margin: 0;
+    padding: 0;
+    font-size: 18pt;
+    line-height: 22pt;
+    color: rgba(255, 255, 255, 0.9);
+    flex: 1;
+}
+
+.itemDescription {
+    font-size: 12px;
+    line-height: 140%;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.5);
+    flex: 1;
+    margin: 0;
 }
 
 .itemPrice {
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
     color: rgba(255, 255, 255, 0.7);
     font-size: 18pt;
     flex-shrink: 0;
-    z-index: 1;
-    position: relative;
+    white-space: nowrap;
 }
 
 .quantity-controls {
@@ -198,7 +201,8 @@ h1 {
     align-items: center;
     gap: 10px;
     justify-content: flex-end;
-    flex-grow: 1;
+    min-width: 130px;
+    flex-shrink: 0;
 }
 
 .addItem, .minus-btn, .plus-btn {
@@ -681,51 +685,33 @@ h1 {
   }
 
   .cardMenuItem {
-    flex-direction: row;
-    width: 90vw;
-    height: auto;
-    border-radius: 20px;
+    padding: 10px 12px;
+    width: 90%;
   }
 
-  .itemText {
-    padding-top: 5px;
-    display: flex;
-    flex-direction: column;
-    height: 130px;
-    width: 70%;
+  .card-top-row,
+  .card-bottom-row {
+    gap: 10px;
   }
 
   .itemTitle {
-    font-size: 18px;
+    font-size: 16px;
     line-height: 120%;
-    padding-bottom: 0px;
   }
 
   .itemDescription {
     font-size: 12px;
     line-height: 140%;
-    height: 60px;
-  }
-
-  .itemImage {
-    width: 30%;
-    height: 120px;
-    padding: 5px;
   }
 
   .itemPrice {
     font-size: 14px;
-    padding-top: 0px;
   }
 
   .quantity-display {
     font-size: 14px;
   }
 
-  .itemRow {
-    float: bottom;
-    position: relative;
-  }
   .addItem, .minus-btn, .plus-btn {
     font-size: 16px;
     height: 24px;
@@ -764,13 +750,35 @@ h1 {
         max-width: none;
     }
 
+    .cart-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: white;
+    }
+
     .cart-content {
         flex-direction: column;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
     .order-form-column {
         border-right: none;
         border-bottom: 1px solid #eee;
+        overflow: visible;
+    }
+
+    .form-scroll-area {
+        overflow-y: visible;
+    }
+
+    .cart-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        background-color: #f9f9f9;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     }
 
     .container {
