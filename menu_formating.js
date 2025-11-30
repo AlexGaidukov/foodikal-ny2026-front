@@ -207,6 +207,64 @@ function findProductById(productId) {
     return null;
 }
 
+// Function to find product by ID and return both product and its category
+function findProductWithCategory(productId) {
+    for (const category in data) {
+        const product = data[category].find(item => item.id === productId);
+        if (product) {
+            return { product, category };
+        }
+    }
+    return null;
+}
+
+// Function to navigate to a specific product by ID
+function navigateToProduct(productId) {
+    const result = findProductWithCategory(productId);
+
+    if (!result) {
+        console.log(`Product with ID ${productId} not found`);
+        return;
+    }
+
+    const { category } = result;
+
+    // Switch to the correct category tab
+    const categories = document.querySelectorAll('.category');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    // Remove active class from all categories and contents
+    categories.forEach(c => c.classList.remove('active'));
+    tabContents.forEach(content => content.classList.remove('active'));
+
+    // Add active class to target category and content
+    const targetCategoryButton = document.querySelector(`.category[data-category="${category}"]`);
+    const targetContent = document.getElementById(`content-${category}`);
+
+    if (targetCategoryButton && targetContent) {
+        targetCategoryButton.classList.add('active');
+        targetContent.classList.add('active');
+    }
+
+    // Find the product card and scroll to it
+    setTimeout(() => {
+        const productCard = document.querySelector(`.cardMenuItem[data-id="${productId}"]`);
+
+        if (productCard) {
+            // Scroll to the product card
+            productCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Add highlight effect
+            productCard.classList.add('highlighted');
+
+            // Remove highlight after animation completes
+            setTimeout(() => {
+                productCard.classList.remove('highlighted');
+            }, 2000);
+        }
+    }, 100); // Small delay to ensure tab switch completes
+}
+
 // Function to add quantity controls to a card
 function addQuantityControls(card) {
     const addBtn = card.querySelector('.addItem');
@@ -766,10 +824,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         createTabContents();
         renderProducts();
         setupCategorySwitching();
+
+        // Handle URL hash navigation (e.g., #30 for product ID 30)
+        if (window.location.hash) {
+            const hash = window.location.hash.substring(1); // Remove the # symbol
+            const productId = parseInt(hash, 10);
+
+            if (!isNaN(productId) && productId > 0) {
+                // Navigate to the product after a short delay to ensure DOM is ready
+                setTimeout(() => {
+                    navigateToProduct(productId);
+                }, 200);
+            }
+        }
     } catch (error) {
         // Show error message
         const container = document.querySelector('.container');
         container.innerHTML = `<div class="error-message">Ошибка загрузки меню: ${error.message}<br>Пожалуйста, обновите страницу.</div>`;
         console.error('Failed to initialize menu:', error);
+    }
+});
+
+// Handle hash changes while page is active
+window.addEventListener('hashchange', function() {
+    const hash = window.location.hash.substring(1); // Remove the # symbol
+    const productId = parseInt(hash, 10);
+
+    if (!isNaN(productId) && productId > 0) {
+        navigateToProduct(productId);
     }
 });

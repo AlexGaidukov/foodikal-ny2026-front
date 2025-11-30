@@ -150,6 +150,21 @@ h1 {
     opacity: 0.85;
 }
 
+.cardMenuItem.highlighted {
+    animation: highlight-pulse 2s ease-in-out;
+}
+
+@keyframes highlight-pulse {
+    0%, 100% {
+        opacity: 0.85;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        background-color: #8a7a5e;
+        transform: scale(1.02);
+    }
+}
 
 .itemImage {
     display: none;
