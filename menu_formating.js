@@ -496,6 +496,8 @@ for (let button of orderButton) {
     cartModal.classList.add('active');
     cartOverlay.classList.add('active');
     document.body.style.overflow = 'hidden';
+    // Validate delivery dates when cart opens
+    validateDeliveryDates();
 });
 }
 
@@ -641,12 +643,62 @@ if (promoInput) {
     });
 }
 
+// Function to validate and update delivery date buttons based on 2-day advance requirement
+function validateDeliveryDates() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset to start of day for accurate comparison
+
+    const dateButtons = document.querySelectorAll('.date-btn');
+    const deliveryDateInput = document.getElementById('deliveryDate');
+    let firstValidButton = null;
+    let currentSelectionValid = false;
+
+    dateButtons.forEach(button => {
+        const deliveryDateStr = button.getAttribute('data-value');
+        const deliveryDate = new Date(deliveryDateStr);
+        deliveryDate.setHours(0, 0, 0, 0);
+
+        // Calculate days difference
+        const diffTime = deliveryDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        // Button is valid if delivery date is at least 2 days from today
+        if (diffDays >= 2) {
+            button.classList.remove('disabled');
+            if (!firstValidButton) {
+                firstValidButton = button;
+            }
+            // Check if this is the currently selected button
+            if (button.classList.contains('selected')) {
+                currentSelectionValid = true;
+            }
+        } else {
+            button.classList.add('disabled');
+            // Remove selection if this disabled button was selected
+            if (button.classList.contains('selected')) {
+                button.classList.remove('selected');
+            }
+        }
+    });
+
+    // If current selection is invalid, auto-select first valid date
+    if (!currentSelectionValid && firstValidButton) {
+        firstValidButton.classList.add('selected');
+        deliveryDateInput.value = firstValidButton.getAttribute('data-value');
+    }
+}
+
 // Date button selection handler
 const dateButtons = document.querySelectorAll('.date-btn');
 const deliveryDateInput = document.getElementById('deliveryDate');
 
 dateButtons.forEach(button => {
     button.addEventListener('click', function() {
+        // Don't allow selection of disabled buttons
+        if (this.classList.contains('disabled')) {
+            return;
+        }
+
         // Remove selected class from all buttons
         dateButtons.forEach(btn => btn.classList.remove('selected'));
 
