@@ -6,10 +6,6 @@
 
 body {
     background-color: #3C5177;
-    background-image: url(images/body-bg.png);
-    background-repeat: repeat-y;
-    background-position: center; /* центрирование фона */
-    background-size: cover;
     position: sticky;
     margin: 0px;
     padding: 0px;
