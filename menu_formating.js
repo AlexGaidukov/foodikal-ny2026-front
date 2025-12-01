@@ -427,16 +427,13 @@ async function setupCarousel() {
 function renderCarousel() {
     if (!carouselTrack || !carouselDots) return;
 
-    // Render slides with frame overlay
+    // Render slides without frame (frame is now stationary outside track)
     carouselTrack.innerHTML = banners.map(banner => `
         <div class="carousel-slide">
             <a href="${banner.item_link}" title="${banner.name}">
                 <img src="${banner.image_url}" alt="${banner.name}">
                 <div class="banner-text-overlay">
                     <h2 class="banner-title">${banner.name}</h2>
-                </div>
-                <div class="frame-overlay">
-                    <img src="images/frame.png" alt="">
                 </div>
             </a>
         </div>
@@ -466,6 +463,33 @@ function setupCarouselNavigation() {
     // Next button
     carouselNextBtn.addEventListener('click', nextSlide);
 
+    // Get carousel container for mouse tracking
+    const carouselContainer = document.getElementById('carouselContainer');
+
+    if (carouselContainer) {
+        // Track mouse movement to show appropriate button
+        carouselContainer.addEventListener('mousemove', (e) => {
+            const rect = carouselContainer.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const containerWidth = rect.width;
+            const isLeftHalf = mouseX < containerWidth / 2;
+
+            if (isLeftHalf) {
+                carouselPrevBtn.classList.add('show');
+                carouselNextBtn.classList.remove('show');
+            } else {
+                carouselPrevBtn.classList.remove('show');
+                carouselNextBtn.classList.add('show');
+            }
+        });
+
+        // Hide both buttons when mouse leaves
+        carouselContainer.addEventListener('mouseleave', () => {
+            carouselPrevBtn.classList.remove('show');
+            carouselNextBtn.classList.remove('show');
+        });
+    }
+
     // Pause auto-play on hover
     if (carouselWrapper) {
         carouselWrapper.addEventListener('mouseenter', () => {
@@ -475,6 +499,36 @@ function setupCarouselNavigation() {
         carouselWrapper.addEventListener('mouseleave', () => {
             startAutoPlay();
         });
+    }
+
+    // Add touch swipe support for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    if (carouselContainer) {
+        carouselContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        carouselContainer.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+    }
+
+    function handleSwipe() {
+        const swipeThreshold = 50; // Minimum distance for a swipe
+        const diff = touchStartX - touchEndX;
+
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+                // Swiped left - go to next slide
+                nextSlide();
+            } else {
+                // Swiped right - go to previous slide
+                prevSlide();
+            }
+        }
     }
 }
 

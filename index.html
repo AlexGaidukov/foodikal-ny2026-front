@@ -30,12 +30,16 @@
 
     <!-- Banner Carousel -->
     <div class="carousel-wrapper">
-        <div class="carousel-container">
-            <div class="carousel-track" id="carouselTrack">
-                <!-- Banner slides will be dynamically inserted here -->
+        <div class="carousel-container" id="carouselContainer">
+            <div class="carousel-track-wrapper">
+                <div class="carousel-track" id="carouselTrack">
+                    <!-- Banner slides will be dynamically inserted here -->
+                </div>
             </div>
-            <div class="carousel-hover-zone left"></div>
-            <div class="carousel-hover-zone right"></div>
+            <!-- Stationary frame overlay -->
+            <div class="frame-overlay-static">
+                <img src="images/frame.png" alt="">
+            </div>
             <button class="carousel-btn prev" id="carouselPrev" aria-label="Previous slide"></button>
             <button class="carousel-btn next" id="carouselNext" aria-label="Next slide"></button>
         </div>

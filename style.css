@@ -15,21 +15,30 @@ body {
 }
 
 header {
-    background-image: url(images/header-bg-image.png);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-    position: sticky;
-    top: 0;
+    position: relative;
+    width: 100%;
     height: 200px;
     align-items: center;
     display: flex;
     justify-content: center;
-    position: relative;
     flex-wrap: wrap;
-    overflow: hidden;
+    overflow: visible;
     z-index: 2;
     font-family: MyJost, Arial, sans-serif;
+}
+
+header::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 200px;
+    background-image: url(images/header-bg-image.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    z-index: -1;
 }
 
 .navbar {
@@ -97,18 +106,30 @@ h1 {
 
 /* Banner Carousel */
 .carousel-wrapper {
-    max-width: 600px;
-    margin: 10px auto 5px;
+    max-width: 650px;
+    margin: -20px auto 0;  /* Negative margin to reduce gap with header */
     padding: 0 20px;
+    position: relative;
+    z-index: 5;
 }
 
 .carousel-container {
     position: relative;
-    overflow: hidden;
-    border-radius: 20px;
+    overflow: visible;
+    width: 650px;
+    height: 450px;
+    margin: 0 auto;
+}
+
+.carousel-track-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 600px;
     height: 400px;
-    margin: 0 auto;
+    overflow: hidden;
+    z-index: 1;
 }
 
 .carousel-track {
@@ -123,13 +144,16 @@ h1 {
     height: 400px;
     position: relative;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .carousel-slide a {
     display: block;
     position: relative;
-    width: 100%;
-    height: 100%;
+    width: 600px;
+    height: 400px;
 }
 
 .carousel-slide img {
@@ -137,13 +161,13 @@ h1 {
     height: 400px;
     object-fit: cover;
     display: block;
-    border-radius: 20px;
+    border-radius: 0;
 }
 
 /* Banner text overlay */
 .carousel-slide .banner-text-overlay {
     position: absolute;
-    bottom: 30px;
+    bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
@@ -157,8 +181,8 @@ h1 {
     font-size: 24px;
     font-weight: 600;
     margin: 0;
-    padding: 12px 20px;
-    background-color: rgba(0, 0, 0, 0.6);
+    padding: 6px 17px;
+    background-color: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(8px);
     border-radius: 15px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
@@ -166,38 +190,21 @@ h1 {
     font-family: MyJost, Arial, sans-serif;
 }
 
-/* Frame overlay - matches banner edges */
-.carousel-slide .frame-overlay {
+/* Stationary frame overlay - stays fixed while banners slide */
+.frame-overlay-static {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 650px;
+    height: 450px;
     pointer-events: none;
-    z-index: 2;
+    z-index: 3;
 }
 
-.carousel-slide .frame-overlay img {
+.frame-overlay-static img {
     width: 100%;
     height: 100%;
     object-fit: fill;
-}
-
-/* Hover zones for showing navigation buttons */
-.carousel-hover-zone {
-    position: absolute;
-    top: 0;
-    width: 50%;
-    height: 100%;
-    z-index: 5;
-}
-
-.carousel-hover-zone.left {
-    left: 0;
-}
-
-.carousel-hover-zone.right {
-    right: 0;
 }
 
 /* Navigation buttons */
@@ -220,30 +227,24 @@ h1 {
     opacity: 0;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    pointer-events: auto;
 }
 
-.carousel-hover-zone.left:hover ~ .carousel-btn.prev {
-    opacity: 1;
-}
-
-.carousel-hover-zone.right:hover ~ .carousel-btn.next {
+.carousel-btn.show {
     opacity: 1;
 }
 
 .carousel-btn:hover {
-    opacity: 1;
     background-color: rgba(255, 255, 255, 1);
     transform: translateY(-50%) scale(1.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .carousel-btn.prev {
-    left: 10px;
+    left: 35px;
 }
 
 .carousel-btn.next {
-    right: 10px;
+    right: 35px;
     transform: translateY(-50%) scaleX(-1);
 }
 
@@ -254,7 +255,7 @@ h1 {
 /* Dots indicators */
 .carousel-dots {
     text-align: center;
-    padding: 8px 0;
+    padding: 3px 0;
 }
 
 .carousel-dot {
@@ -301,6 +302,7 @@ h1 {
     top: 0;
     width: 10%;
     min-width: 100px;
+    z-index: 10;
 }
 
 .container {
@@ -872,6 +874,7 @@ h1 {
     top: 80px;
     text-align: left;
     padding-left: 20px;
+    padding-bottom: 5px;
   }
   .logo {
     height: 60px;
@@ -952,7 +955,7 @@ h1 {
         justify-items: center;
         grid-template-columns: 1fr;
         justify-items: center;
-        margin-top: 40px;
+        margin-top: 5px;
     }
 
     .cart-modal {
@@ -1002,6 +1005,7 @@ h1 {
         max-width: 100%;
         padding: 0 10px;
         margin: 10px auto;
+        margin-top: 100px;
     }
 
     .carousel-container {
@@ -1010,8 +1014,23 @@ h1 {
         aspect-ratio: 3/2;
     }
 
+    .carousel-track-wrapper {
+        width: 92.3%;  /* 600/650 proportion from desktop */
+        height: 88.9%; /* 400/450 proportion from desktop */
+    }
+
+    .frame-overlay-static {
+        width: 100%;
+        height: 100%;
+    }
+
     .carousel-slide {
         min-width: 100%;
+        width: 100%;
+        height: auto;
+    }
+
+    .carousel-slide a {
         width: 100%;
         height: auto;
     }
@@ -1033,16 +1052,20 @@ h1 {
 
     .carousel-btn {
         font-size: 18px;
-        width: 35px;
-        height: 35px;
+        width: 8vw;  /* Scale with viewport width */
+        height: 8vw;
+        min-width: 30px;  /* Minimum size for usability */
+        min-height: 30px;
+        max-width: 40px;  /* Maximum size limit */
+        max-height: 40px;
     }
 
     .carousel-btn.prev {
-        left: 5px;
+        left: 3%;  /* Proportional to banner width */
     }
 
     .carousel-btn.next {
-        right: 5px;
+        right: 3%;
     }
 
     .carousel-dot {
