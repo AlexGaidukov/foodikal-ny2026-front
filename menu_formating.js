@@ -146,13 +146,71 @@ function createProductCard(element) {
             <div class="itemPrice">${element.price} RSD</div>
         </div>
         <div class="card-bottom-row">
-            <div class="itemDescription">${element.description}</div>
+            <div class="description-wrapper">
+                <div class="itemDescription truncated">${element.description}</div>
+            </div>
             <div class="quantity-controls">
                 <button class="addItem">+</button>
             </div>
         </div>
     `;
+
     return card;
+}
+
+// Function to add truncation toggle buttons to descriptions
+function addDescriptionToggles() {
+    const allDescriptions = document.querySelectorAll('.itemDescription');
+    console.log('Found descriptions:', allDescriptions.length);
+
+    allDescriptions.forEach((descElement, index) => {
+        const wrapper = descElement.parentElement;
+
+        // Remove existing toggle button if present
+        const existingToggle = wrapper.querySelector('.description-toggle');
+        if (existingToggle) {
+            existingToggle.remove();
+        }
+
+        // Make sure description starts as truncated
+        if (!descElement.classList.contains('truncated')) {
+            descElement.classList.add('truncated');
+        }
+
+        // Temporarily remove truncation to get natural height
+        descElement.classList.remove('truncated');
+        const naturalHeight = descElement.scrollHeight;
+
+        // Add truncation back
+        descElement.classList.add('truncated');
+        const truncatedHeight = descElement.clientHeight;
+
+        // Check if text is overflowing (natural height > truncated height)
+        const isOverflowing = naturalHeight > truncatedHeight;
+        console.log(`Description ${index}: naturalHeight=${naturalHeight}, truncatedHeight=${truncatedHeight}, overflowing=${isOverflowing}`);
+
+        if (isOverflowing) {
+            console.log('Adding toggle button for description', index);
+            // Add "ещё" toggle button after description
+            const toggleBtn = document.createElement('span');
+            toggleBtn.className = 'description-toggle';
+            toggleBtn.textContent = 'ещё';
+
+            wrapper.appendChild(toggleBtn);
+
+            // Add click handler
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (descElement.classList.contains('truncated')) {
+                    descElement.classList.remove('truncated');
+                    toggleBtn.textContent = 'скрыть';
+                } else {
+                    descElement.classList.add('truncated');
+                    toggleBtn.textContent = 'ещё';
+                }
+            });
+        }
+    });
 }
 
 // Function to create tab contents dynamically
@@ -202,6 +260,11 @@ function renderProducts() {
             });
         }
     });
+
+    // Add description toggle buttons after all cards are rendered
+    setTimeout(() => {
+        addDescriptionToggles();
+    }, 100);
 }
 
 function findProductById(productId) {
@@ -289,6 +352,11 @@ function navigateToCategory(categoryName) {
     if (targetCategoryButton && targetContent) {
         targetCategoryButton.classList.add('active');
         targetContent.classList.add('active');
+
+        // Add description toggles for newly visible tab
+        setTimeout(() => {
+            addDescriptionToggles();
+        }, 100);
 
         // Scroll to the navbar area
         const navbar = document.querySelector('.navbar');
@@ -389,6 +457,11 @@ function setupCategorySwitching() {
             category.classList.add('active');
             const categoryName = category.getAttribute('data-category');
             document.getElementById(`content-${categoryName}`).classList.add('active');
+
+            // Add description toggles for newly visible tab
+            setTimeout(() => {
+                addDescriptionToggles();
+            }, 100);
         });
     });
 }
@@ -1121,6 +1194,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         container.innerHTML = `<div class="error-message">Ошибка загрузки меню: ${error.message}<br>Пожалуйста, обновите страницу.</div>`;
         console.error('Failed to initialize menu:', error);
     }
+});
+
+// Handle window resize to re-check description truncation
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    // Debounce resize events
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        console.log('Window resized, re-checking descriptions');
+        addDescriptionToggles();
+    }, 300);
 });
 
 // Handle hash changes while page is active

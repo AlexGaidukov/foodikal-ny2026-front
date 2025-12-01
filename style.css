@@ -378,13 +378,34 @@ h1 {
     flex: 1;
 }
 
+.description-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
 .itemDescription {
     font-size: 12px;
     line-height: 140%;
     padding: 0;
     color: rgba(255, 255, 255, 0.5);
-    flex: 1;
     margin: 0;
+}
+
+.itemDescription.truncated {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.description-toggle {
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    text-decoration: underline;
+    display: inline-block;
+    margin-top: 2px;
+    font-size: 12px;
 }
 
 .itemPrice {
