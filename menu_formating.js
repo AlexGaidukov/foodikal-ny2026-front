@@ -127,6 +127,13 @@ const cartItemsContainer = document.getElementById('cartItems');
 const cartTotalElement = document.getElementById('cartTotal');
 const tabContentsContainer = document.getElementById('tabContentsContainer');
 
+// Carousel DOM elements
+const carouselWrapper = document.querySelector('.carousel-wrapper');
+const carouselTrack = document.getElementById('carouselTrack');
+const carouselDots = document.getElementById('carouselDots');
+const carouselPrevBtn = document.getElementById('carouselPrev');
+const carouselNextBtn = document.getElementById('carouselNext');
+
 // Function to create a product card
 function createProductCard(element) {
     let card = document.createElement("div");
@@ -265,6 +272,36 @@ function navigateToProduct(productId) {
     }, 100); // Small delay to ensure tab switch completes
 }
 
+// Navigate to a category by name
+function navigateToCategory(categoryName) {
+    // Find the category button with matching data-category attribute
+    const categories = document.querySelectorAll('.category');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    // Remove active class from all categories and contents
+    categories.forEach(c => c.classList.remove('active'));
+    tabContents.forEach(content => content.classList.remove('active'));
+
+    // Find and activate the target category
+    const targetCategoryButton = document.querySelector(`.category[data-category="${categoryName}"]`);
+    const targetContent = document.getElementById(`content-${categoryName}`);
+
+    if (targetCategoryButton && targetContent) {
+        targetCategoryButton.classList.add('active');
+        targetContent.classList.add('active');
+
+        // Scroll to the navbar area
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            setTimeout(() => {
+                navbar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    } else {
+        console.log(`Category "${categoryName}" not found`);
+    }
+}
+
 // Function to add quantity controls to a card
 function addQuantityControls(card) {
     const addBtn = card.querySelector('.addItem');
@@ -354,6 +391,132 @@ function setupCategorySwitching() {
             document.getElementById(`content-${categoryName}`).classList.add('active');
         });
     });
+}
+
+// Carousel functionality
+let currentSlide = 0;
+let banners = [];
+let autoPlayInterval = null;
+
+async function setupCarousel() {
+    try {
+        // Fetch banners from API
+        const response = await fetch('https://foodikal-ny-cors-wrapper.x-gs-x.workers.dev/api/banners');
+        const responseData = await response.json();
+
+        if (responseData.success && responseData.banners && responseData.banners.length > 0) {
+            banners = responseData.banners;
+            renderCarousel();
+            setupCarouselNavigation();
+            startAutoPlay();
+        } else {
+            // Hide carousel if no banners available
+            if (carouselWrapper) {
+                carouselWrapper.classList.add('hidden');
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load banners:', error);
+        // Hide carousel on error
+        if (carouselWrapper) {
+            carouselWrapper.classList.add('hidden');
+        }
+    }
+}
+
+function renderCarousel() {
+    if (!carouselTrack || !carouselDots) return;
+
+    // Render slides with frame overlay
+    carouselTrack.innerHTML = banners.map(banner => `
+        <div class="carousel-slide">
+            <a href="${banner.item_link}" title="${banner.name}">
+                <img src="${banner.image_url}" alt="${banner.name}">
+                <div class="banner-text-overlay">
+                    <h2 class="banner-title">${banner.name}</h2>
+                </div>
+                <div class="frame-overlay">
+                    <img src="images/frame.png" alt="">
+                </div>
+            </a>
+        </div>
+    `).join('');
+
+    // Render dots
+    carouselDots.innerHTML = banners.map((_, index) => `
+        <span class="carousel-dot ${index === 0 ? 'active' : ''}" data-index="${index}"></span>
+    `).join('');
+
+    // Add click handlers to dots
+    const dots = carouselDots.querySelectorAll('.carousel-dot');
+    dots.forEach(dot => {
+        dot.addEventListener('click', () => {
+            const index = parseInt(dot.getAttribute('data-index'));
+            goToSlide(index);
+        });
+    });
+}
+
+function setupCarouselNavigation() {
+    if (!carouselPrevBtn || !carouselNextBtn) return;
+
+    // Previous button
+    carouselPrevBtn.addEventListener('click', prevSlide);
+
+    // Next button
+    carouselNextBtn.addEventListener('click', nextSlide);
+
+    // Pause auto-play on hover
+    if (carouselWrapper) {
+        carouselWrapper.addEventListener('mouseenter', () => {
+            stopAutoPlay();
+        });
+
+        carouselWrapper.addEventListener('mouseleave', () => {
+            startAutoPlay();
+        });
+    }
+}
+
+function goToSlide(index) {
+    currentSlide = index;
+
+    // Update track position
+    if (carouselTrack) {
+        carouselTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+    }
+
+    // Update dots
+    if (carouselDots) {
+        const dots = carouselDots.querySelectorAll('.carousel-dot');
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentSlide);
+        });
+    }
+}
+
+function nextSlide() {
+    currentSlide = (currentSlide + 1) % banners.length;
+    goToSlide(currentSlide);
+}
+
+function prevSlide() {
+    currentSlide = (currentSlide - 1 + banners.length) % banners.length;
+    goToSlide(currentSlide);
+}
+
+function startAutoPlay() {
+    stopAutoPlay(); // Clear any existing interval
+    if (banners.length > 1) {
+        autoPlayInterval = setInterval(nextSlide, 5000); // 5 seconds
+    }
+}
+
+function stopAutoPlay() {
+    if (autoPlayInterval) {
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = null;
+    }
 }
 
 function updateCartItemQuantity(productId, quantity) {
@@ -877,16 +1040,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderProducts();
         setupCategorySwitching();
 
-        // Handle URL hash navigation (e.g., #30 for product ID 30)
+        // Initialize carousel
+        setupCarousel();
+
+        // Handle URL hash navigation (e.g., #30 for product ID, #Брускетты for category)
         if (window.location.hash) {
             const hash = window.location.hash.substring(1); // Remove the # symbol
             const productId = parseInt(hash, 10);
 
+            // Check if it's a numeric product ID
             if (!isNaN(productId) && productId > 0) {
                 // Navigate to the product after a short delay to ensure DOM is ready
                 setTimeout(() => {
                     navigateToProduct(productId);
                 }, 200);
+            }
+            // Check if it's a category name
+            else if (hash) {
+                const decodedHash = decodeURIComponent(hash);
+                navigateToCategory(decodedHash);
             }
         }
     } catch (error) {
@@ -902,7 +1074,13 @@ window.addEventListener('hashchange', function() {
     const hash = window.location.hash.substring(1); // Remove the # symbol
     const productId = parseInt(hash, 10);
 
+    // Check if it's a numeric product ID
     if (!isNaN(productId) && productId > 0) {
         navigateToProduct(productId);
+    }
+    // Check if it's a category name
+    else if (hash) {
+        const decodedHash = decodeURIComponent(hash);
+        navigateToCategory(decodedHash);
     }
 });
