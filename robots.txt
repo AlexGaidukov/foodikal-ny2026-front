@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /tmp/
+Disallow: /.git/
+Disallow: /.claude/
+
+Sitemap: https://ny2026.foodikal.rs/sitemap.xml
+
+User-agent: Yandex
+Crawl-delay: 1

@@ -136,21 +136,27 @@ const carouselNextBtn = document.getElementById('carouselNext');
 
 // Function to create a product card
 function createProductCard(element) {
-    let card = document.createElement("div");
+    let card = document.createElement("article");
     card.className = "cardMenuItem";
     card.dataset.id = element.id;
+    card.setAttribute('itemscope', '');
+    card.setAttribute('itemtype', 'https://schema.org/MenuItem');
 
     card.innerHTML = `
         <div class="card-top-row">
-            <h2 class="itemTitle">${element.name}</h2>
-            <div class="itemPrice">${element.price} RSD</div>
+            <h2 class="itemTitle" itemprop="name">${element.name}</h2>
+            <div class="itemPrice" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                <meta itemprop="price" content="${element.price}">
+                <meta itemprop="priceCurrency" content="RSD">
+                ${element.price} RSD
+            </div>
         </div>
         <div class="card-bottom-row">
             <div class="description-wrapper">
-                <div class="itemDescription truncated">${element.description}</div>
+                <div class="itemDescription truncated" itemprop="description">${element.description}</div>
             </div>
             <div class="quantity-controls">
-                <button class="addItem">+</button>
+                <button class="addItem" aria-label="Добавить ${element.name} в корзину">+</button>
             </div>
         </div>
     `;

@@ -1,9 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>New Year Menu</title>
+    <title>Новогоднее Меню 2026 | Foodikal | Доставка в Белграде</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Закажите новогоднее меню от Foodikal в Белграде! Оливье, Селёдка под Шубой, Винегрет, брускетты, канапе, тарталетки и горячее с доставкой. Избавьте себя от хлопот на праздники - заказ за 2 дня до доставки.">
+    <meta name="keywords" content="новогоднее меню белград, доставка еды белград, новогодние салаты белград, оливье белград, селёдка под шубой белград, винегрет белград, крабовый салат белград, новогодние закуски белград, новогодние канапе белград, тарталетки белград, брускетты белград, foodikal, новый год 2026, праздничное меню доставка">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <link rel="canonical" href="https://ny2026.foodikal.rs/">
+    <meta name="theme-color" content="#3C5177">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ny2026.foodikal.rs/">
+    <meta property="og:title" content="Новогоднее Меню 2026 | Foodikal">
+    <meta property="og:description" content="Закажите новогоднее меню от Foodikal в Белграде! Оливье, Селёдка под Шубой, Винегрет, брускетты, канапе, тарталетки и горячее с доставкой.">
+    <meta property="og:image" content="https://ny2026.foodikal.rs/images/header-bg-image.png">
+    <meta property="og:locale" content="ru_RS">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://ny2026.foodikal.rs/">
+    <meta name="twitter:title" content="Новогоднее Меню 2026 | Foodikal">
+    <meta name="twitter:description" content="Закажите новогоднее меню от Foodikal в Белграде! Оливье, Селёдка под Шубой, Винегрет, брускетты, канапе, тарталетки и горячее с доставкой.">
+    <meta name="twitter:image" content="https://ny2026.foodikal.rs/images/header-bg-image.png">
 
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="images/favicon/favicon.ico">
@@ -15,6 +37,44 @@
 
 <!--    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&display=swap" rel="stylesheet">-->
     <link href="style.css" rel="stylesheet">
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Menu",
+      "name": "Новогоднее меню 2026",
+      "description": "Праздничное меню на Новый год от Foodikal",
+      "hasMenuSection": [
+        {"@type": "MenuSection", "name": "Брускетты", "description": "Итальянские закуски на хрустящем хлебе"},
+        {"@type": "MenuSection", "name": "Горячее", "description": "Горячие блюда для праздничного стола"},
+        {"@type": "MenuSection", "name": "Закуски", "description": "Разнообразные холодные закуски"},
+        {"@type": "MenuSection", "name": "Канапе", "description": "Изысканные мини-закуски"},
+        {"@type": "MenuSection", "name": "Салаты", "description": "Свежие салаты для праздничного стола"},
+        {"@type": "MenuSection", "name": "Тарталетки", "description": "Хрустящие тарталетки с различными начинками"}
+      ]
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Новогоднее Меню 2026 | Foodikal",
+      "description": "Закажите новогоднее меню от Foodikal в Белграде! Оливье, Селёдка под Шубой, Винегрет, брускетты, канапе, тарталетки и горячее с доставкой.",
+      "url": "https://ny2026.foodikal.rs/",
+      "inLanguage": "ru",
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://foodikal.rs",
+        "name": "Foodikal",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://ny2026.foodikal.rs/images/Foodikal.svg"
+        }
+      }
+    }
+    </script>
 </head>
 <body>
     <header>
@@ -38,7 +98,7 @@
             </div>
             <!-- Stationary frame overlay -->
             <div class="frame-overlay-static">
-                <img src="images/frame.png" alt="">
+                <img src="images/frame.png" alt="Декоративная рамка карусели">
             </div>
             <button class="carousel-btn prev" id="carouselPrev" aria-label="Previous slide"></button>
             <button class="carousel-btn next" id="carouselNext" aria-label="Next slide"></button>
@@ -46,19 +106,19 @@
         <div class="carousel-dots" id="carouselDots"></div>
     </div>
 
-    <div class="navbar">
+    <nav class="navbar" aria-label="Категории меню">
         <button class="category active" data-category="Брускетты">Брускетты</button>
         <button class="category" data-category="Горячее">Горячее</button>
         <button class="category" data-category="Закуски">Закуски</button>
         <button class="category" data-category="Канапе">Канапе</button>
         <button class="category" data-category="Салаты">Салаты</button>
         <button class="category" data-category="Тарталетки">Тарталетки</button>
-    </div>
-    <div class="container">
+    </nav>
+    <main class="container">
         <div id="tabContentsContainer">
             <!-- Tab contents will be generated dynamically -->
         </div>
-    </div>
+    </main>
     <div class="overlay" id="cartOverlay"></div>
     <div class="cart-modal" id="cartModal">
         <div class="cart-header">
