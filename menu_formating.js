@@ -13,7 +13,6 @@ class FoodikalAPI {
             }
 
             const result = await response.json();
-            console.log('API Response:', result);
 
             if (result.success && result.data) {
                 return result.data;
@@ -28,8 +27,6 @@ class FoodikalAPI {
 
     async createOrder(orderData) {
         try {
-            console.log('Sending order data:', orderData);
-
             const response = await fetch(`${this.baseURL}/api/create_order`, {
                 method: 'POST',
                 headers: {
@@ -39,7 +36,6 @@ class FoodikalAPI {
             });
 
             const result = await response.json();
-            console.log('Order API response:', result);
 
             if (result.success) {
                 return {
@@ -62,8 +58,6 @@ class FoodikalAPI {
 
     async validatePromoCode(promoCode, orderItems) {
         try {
-            console.log('Validating promo code:', promoCode);
-
             const response = await fetch(`${this.baseURL}/api/validate_promo`, {
                 method: 'POST',
                 headers: {
@@ -76,7 +70,6 @@ class FoodikalAPI {
             });
 
             const result = await response.json();
-            console.log('Promo validation response:', result);
 
             if (result.success) {
                 return {
@@ -175,7 +168,6 @@ function createProductCard(element) {
 // Function to add truncation toggle buttons to descriptions
 function addDescriptionToggles() {
     const allDescriptions = document.querySelectorAll('.itemDescription');
-    console.log('Found descriptions:', allDescriptions.length);
 
     allDescriptions.forEach((descElement, index) => {
         const wrapper = descElement.parentElement;
@@ -201,10 +193,8 @@ function addDescriptionToggles() {
 
         // Check if text is overflowing (natural height > truncated height)
         const isOverflowing = naturalHeight > truncatedHeight;
-        console.log(`Description ${index}: naturalHeight=${naturalHeight}, truncatedHeight=${truncatedHeight}, overflowing=${isOverflowing}`);
 
         if (isOverflowing) {
-            console.log('Adding toggle button for description', index);
             // Add "ещё" toggle button after description
             const toggleBtn = document.createElement('span');
             toggleBtn.className = 'description-toggle';
@@ -237,7 +227,6 @@ function initializeWithData(menuData) {
     }
 
     data = menuData;
-    console.log('Menu initialized:', Object.keys(data));
 
     createTabContents();
     renderProducts();
@@ -274,20 +263,15 @@ function handleHashNavigation() {
 
 // Fetch fresh data from API and update silently if changed
 async function fetchAndUpdateInBackground() {
-    console.log('Starting background data refresh...');
-
     // Fetch menu
     try {
         const freshMenuData = await api.getMenu();
 
         if (freshMenuData && hasMenuDataChanged(data, freshMenuData)) {
-            console.log('New menu data detected, updating...');
             updateMenuSilently(freshMenuData);
-        } else {
-            console.log('Menu data unchanged');
         }
     } catch (error) {
-        console.log('Background menu fetch failed, keeping fallback:', error);
+        // Silent failure - page continues to work with fallback data
     }
 
     // Fetch banners
@@ -297,14 +281,11 @@ async function fetchAndUpdateInBackground() {
 
         if (responseData.success && responseData.banners) {
             if (hasBannerDataChanged(banners, responseData.banners)) {
-                console.log('New banner data detected, updating...');
                 updateBannersSilently(responseData.banners);
-            } else {
-                console.log('Banner data unchanged');
             }
         }
     } catch (error) {
-        console.log('Background banner fetch failed, keeping fallback:', error);
+        // Silent failure - carousel continues with fallback banners
     }
 }
 
@@ -385,8 +366,6 @@ function updateMenuSilently(newMenuData) {
 
     window.scrollTo(0, scrollY);
     syncCartQuantities();
-
-    console.log('Menu updated silently');
 }
 
 // Update banner data and carousel without disrupting user
@@ -401,8 +380,6 @@ function updateBannersSilently(newBanners) {
     } else {
         goToSlide(0);
     }
-
-    console.log('Banners updated silently');
 }
 
 // Sync cart quantities in product cards after re-render
@@ -526,7 +503,6 @@ function navigateToProduct(productId) {
     const result = findProductWithCategory(productId);
 
     if (!result) {
-        console.log(`Product with ID ${productId} not found`);
         return;
     }
 
@@ -598,8 +574,6 @@ function navigateToCategory(categoryName) {
                 navbar.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
         }
-    } else {
-        console.log(`Category "${categoryName}" not found`);
     }
 }
 
@@ -1378,8 +1352,6 @@ function showFormMessage(message, type) {
 // Initialize the page
 document.addEventListener('DOMContentLoaded', async () => {
     // PHASE 1: Instant render with embedded fallback data
-    console.log('Initializing with fallback data...');
-
     initializeWithData(FALLBACK_DATA.menu);
     initializeCarouselWithData(FALLBACK_DATA.banners);
 
@@ -1396,7 +1368,6 @@ window.addEventListener('resize', () => {
     // Debounce resize events
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
-        console.log('Window resized, re-checking descriptions');
         addDescriptionToggles();
     }, 300);
 });
