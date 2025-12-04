@@ -98,6 +98,43 @@ class FoodikalAPI {
 // Initialize API
 const api = new FoodikalAPI();
 
+// ===== GOOGLE ANALYTICS 4 HELPER FUNCTIONS =====
+
+/**
+ * Converts cart item to GA4 ecommerce item format
+ * @param {Object} item - Cart item with id, name, price, quantity
+ * @param {number} index - Position in array (0-based)
+ * @returns {Object} GA4-formatted item object
+ */
+function formatItemForGA4(item, index = 0) {
+    // Find the product to get category
+    const productWithCategory = findProductWithCategory(item.id);
+    const category = productWithCategory ? productWithCategory.category : 'Unknown';
+
+    return {
+        item_id: String(item.id),
+        item_name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        currency: 'RSD',
+        item_category: category,
+        index: index
+    };
+}
+
+/**
+ * Sends GA4 ecommerce event
+ * @param {string} eventName - GA4 event name (e.g., 'add_to_cart')
+ * @param {Object} eventParams - Event-specific parameters
+ */
+function sendGA4Event(eventName, eventParams) {
+    if (typeof gtag !== 'undefined') {
+        gtag('event', eventName, eventParams);
+    }
+}
+
+// ===== END GOOGLE ANALYTICS 4 HELPER FUNCTIONS =====
+
 // Static fallback data - update manually when menu changes
 // Last updated: 2025-12-04
 const FALLBACK_DATA = {
@@ -646,6 +683,20 @@ function addToCart(product, quantity) {
         });
     }
 
+    // GA4: Track add_to_cart event
+    const cartItem = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: quantity
+    };
+
+    sendGA4Event('add_to_cart', {
+        currency: 'RSD',
+        value: product.price * quantity,
+        items: [formatItemForGA4(cartItem, 0)]
+    });
+
     updateCartDisplay();
 }
 
@@ -995,6 +1046,16 @@ for (let button of orderButton) {
     document.body.style.overflow = 'hidden';
     // Validate delivery dates when cart opens
     validateDeliveryDates();
+
+    // GA4: Track begin_checkout event
+    if (cart.length > 0) {
+        const cartValue = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        sendGA4Event('begin_checkout', {
+            currency: 'RSD',
+            value: cartValue,
+            items: cart.map((item, index) => formatItemForGA4(item, index))
+        });
+    }
 });
 }
 
@@ -1109,6 +1170,14 @@ async function validatePromoWithServer(code) {
             promoValidationCache = { code: code, valid: true };
             promoMessage.textContent = 'Промокод применен!';
             promoMessage.className = 'promo-message success';
+
+            // GA4: Track successful promo code application
+            const cartValue = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            sendGA4Event('add_promocode', {
+                value: cartValue,
+                coupon: code,
+                items: cart.map((item, index) => formatItemForGA4(item, index))
+            });
         } else {
             appliedPromoCode = null;
             promoValidationCache = { code: code, valid: false }; // Cache invalid result
@@ -1281,6 +1350,16 @@ checkoutForm.addEventListener('submit', async function(e) {
             `Заказ успешно создан! Итого: ${result.totalPrice} RSD. Наш менеджер свяжется с вами для подтверждения.`,
             'success'
         );
+
+        // GA4: Track purchase event
+        const transactionId = result.orderId || `order_${Date.now()}`;
+        sendGA4Event('purchase', {
+            transaction_id: transactionId,
+            currency: 'RSD',
+            value: result.totalPrice,
+            coupon: appliedPromoCode || undefined,
+            items: cart.map((item, index) => formatItemForGA4(item, index))
+        });
 
         // Clear cart
         cart = [];
