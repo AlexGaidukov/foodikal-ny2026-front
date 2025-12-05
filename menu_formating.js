@@ -945,7 +945,7 @@ function updateCartDisplay() {
         // Update delivery fee display (show fee amount but don't add to total)
         const deliveryFeeText = document.getElementById('deliveryFeeText');
         if (deliveryFeeText) {
-            deliveryFeeText.textContent = `${DELIVERY_FEE} RSD`;
+            deliveryFeeText.textContent = `${DELIVERY_FEE} RSD (бесплатно для заказов от 4000 RSD)`;
         }
 
         // Reset promo validation state but keep the input value
@@ -1016,7 +1016,7 @@ function updateCartDisplay() {
     const deliveryFeeText = document.getElementById('deliveryFeeText');
     if (deliveryFeeText) {
         if (deliveryFee > 0) {
-            deliveryFeeText.textContent = `${DELIVERY_FEE} RSD`;
+            deliveryFeeText.textContent = `${DELIVERY_FEE} RSD (бесплатно для заказов от 4000 RSD)`;
         } else {
             deliveryFeeText.textContent = 'бесплатно';
         }
