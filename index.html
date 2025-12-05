@@ -155,7 +155,7 @@
 
                         <div class="form-group">
                             <label for="customerContact">Как с вами связаться *</label>
-                            <input type="text" id="customerContact" name="customerContact" required minlength="3" maxlength="50" placeholder="Telegram, Телефон или Email">
+                            <input type="text" id="customerContact" name="customerContact" required minlength="3" maxlength="50" placeholder="Telegram, Whatsapp, Viber">
                         </div>
 
                         <div class="form-group">
@@ -205,9 +205,15 @@
                 </div>
 
                 <div class="cart-footer">
+                    <div class="payment-method" id="deliveryFeeSection">
+                        <span>Доставка:</span>
+                        <span id="deliveryFeeText">бесплатно</span>
+                    </div>
                     <div class="cart-total" id="cartTotalSection">
-                        <span>Итого:</span>
-                        <span id="cartTotal">0 RSD</span>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Итого:</span>
+                            <span id="cartTotal">0 RSD</span>
+                        </div>
                     </div>
                     <div class="payment-method">
                         <span>Способ оплаты:</span>

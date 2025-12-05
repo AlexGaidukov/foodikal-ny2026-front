@@ -151,6 +151,12 @@ let cart = [];
 let appliedPromoCode = null;
 let promoDiscount = 0;
 
+// Delivery fee configuration
+const DELIVERY_FEE = 250;
+const FREE_DELIVERY_THRESHOLD = 4000;
+let currentDeliveryFee = 0;
+let applyDeliveryFeeFlag = false;
+
 // Promo validation cache
 let promoValidationCache = null; // Stores last validation result from server
 let promoDebounceTimer = null; // Timer for debouncing API calls
@@ -926,7 +932,22 @@ function updateCartDisplay() {
 
     if (cart.length === 0) {
         cartItemsContainer.innerHTML = '<div class="empty-cart-message">Ваша корзина пуста</div>';
-        cartTotalElement.textContent = '0 RSD';
+
+        // Update total display with flex wrapper
+        const cartTotalSection = document.getElementById('cartTotalSection');
+        cartTotalSection.innerHTML = `
+            <div style="display: flex; justify-content: space-between;">
+                <span>Итого:</span>
+                <span id="cartTotal">0 RSD</span>
+            </div>
+        `;
+
+        // Update delivery fee display
+        const deliveryFeeText = document.getElementById('deliveryFeeText');
+        if (deliveryFeeText) {
+            deliveryFeeText.textContent = 'бесплатно';
+        }
+
         // Reset promo validation state but keep the input value
         appliedPromoCode = null;
         promoValidationCache = null;
@@ -980,6 +1001,30 @@ function updateCartDisplay() {
         total = subtotal;
     }
 
+    // Calculate delivery fee (based on subtotal before delivery fee)
+    let deliveryFee = 0;
+    if (subtotal > 0 && subtotal < FREE_DELIVERY_THRESHOLD) {
+        deliveryFee = DELIVERY_FEE;
+        currentDeliveryFee = DELIVERY_FEE;
+        applyDeliveryFeeFlag = true;
+    } else {
+        currentDeliveryFee = 0;
+        applyDeliveryFeeFlag = false;
+    }
+
+    // Update delivery fee display
+    const deliveryFeeText = document.getElementById('deliveryFeeText');
+    if (deliveryFeeText) {
+        if (deliveryFee > 0) {
+            deliveryFeeText.textContent = `${DELIVERY_FEE} RSD`;
+        } else {
+            deliveryFeeText.textContent = 'бесплатно';
+        }
+    }
+
+    // Add delivery fee to total
+    total = total + deliveryFee;
+
     // Update display based on whether promo is applied
     const cartTotalSection = document.getElementById('cartTotalSection');
 
@@ -998,8 +1043,10 @@ function updateCartDisplay() {
     } else {
         // Show just total
         cartTotalSection.innerHTML = `
-            <span>Итого:</span>
-            <span id="cartTotal">${total} RSD</span>
+            <div style="display: flex; justify-content: space-between;">
+                <span>Итого:</span>
+                <span id="cartTotal">${total} RSD</span>
+            </div>
         `;
     }
 
@@ -1337,6 +1384,9 @@ checkoutForm.addEventListener('submit', async function(e) {
         orderData.promo_code = appliedPromoCode;
     }
 
+    // Add delivery fee flag
+    orderData.apply_delivery_fee = applyDeliveryFeeFlag;
+
     // Disable submit button
     submitOrderBtn.disabled = true;
     submitOrderBtn.textContent = 'Отправка...';
@@ -1357,6 +1407,7 @@ checkoutForm.addEventListener('submit', async function(e) {
             transaction_id: transactionId,
             currency: 'RSD',
             value: result.totalPrice,
+            shipping: currentDeliveryFee,
             coupon: appliedPromoCode || undefined,
             items: cart.map((item, index) => formatItemForGA4(item, index))
         });
