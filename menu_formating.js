@@ -942,10 +942,10 @@ function updateCartDisplay() {
             </div>
         `;
 
-        // Update delivery fee display
+        // Update delivery fee display (show fee amount but don't add to total)
         const deliveryFeeText = document.getElementById('deliveryFeeText');
         if (deliveryFeeText) {
-            deliveryFeeText.textContent = 'бесплатно';
+            deliveryFeeText.textContent = `${DELIVERY_FEE} RSD`;
         }
 
         // Reset promo validation state but keep the input value
