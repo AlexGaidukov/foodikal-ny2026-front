@@ -431,11 +431,25 @@ function syncCartQuantities() {
         const card = document.querySelector(`.cardMenuItem[data-id="${cartItem.id}"]`);
 
         if (card) {
+            const product = findProductById(cartItem.id);
+            if (!product) return;
+
             const controlsContainer = card.querySelector('.quantity-controls');
+
+            // Determine step and min based on product settings
+            const isFractional = product.allow_fractional === 1;
+            const step = isFractional ? product.quantity_step : 1;
+            const minQty = isFractional ? product.min_quantity : 1;
+            const formatQty = (qty) => {
+                if (isFractional) {
+                    return qty % 1 === 0 ? qty.toString() : qty.toFixed(1);
+                }
+                return qty.toString();
+            };
 
             controlsContainer.innerHTML = `
                 <button class="minus-btn">-</button>
-                <span class="quantity-display">${cartItem.quantity}</span>
+                <span class="quantity-display">${formatQty(cartItem.quantity)}</span>
                 <button class="plus-btn">+</button>
             `;
 
@@ -444,15 +458,18 @@ function syncCartQuantities() {
             const quantityDisplay = controlsContainer.querySelector('.quantity-display');
 
             plusBtn.addEventListener('click', () => {
-                const newQuantity = cartItem.quantity + 1;
-                quantityDisplay.textContent = newQuantity;
+                let newQuantity = cartItem.quantity + step;
+                if (newQuantity > 50) newQuantity = 50; // Max limit
+                quantityDisplay.textContent = formatQty(newQuantity);
                 updateCartItemQuantity(cartItem.id, newQuantity);
             });
 
             minusBtn.addEventListener('click', () => {
-                if (cartItem.quantity > 1) {
-                    const newQuantity = cartItem.quantity - 1;
-                    quantityDisplay.textContent = newQuantity;
+                if (cartItem.quantity > minQty) {
+                    let newQuantity = cartItem.quantity - step;
+                    // Ensure we don't go below minimum due to floating point math
+                    if (newQuantity < minQty) newQuantity = minQty;
+                    quantityDisplay.textContent = formatQty(newQuantity);
                     updateCartItemQuantity(cartItem.id, newQuantity);
                 } else {
                     controlsContainer.innerHTML = `<button class="addItem">+</button>`;
@@ -629,22 +646,35 @@ function addQuantityControls(card) {
 
     addBtn.addEventListener('click', () => {
         if (quantity === 0) {
+            const productId = parseInt(card.dataset.id);
+            const product = findProductById(productId);
+
+            if (!product) return;
+
+            // Determine initial quantity and step based on product settings
+            const isFractional = product.allow_fractional === 1;
+            const step = isFractional ? product.quantity_step : 1;
+            const minQty = isFractional ? product.min_quantity : 1;
+            const initialQty = minQty;
+
+            // Format quantity display (show whole numbers without decimal)
+            const formatQty = (qty) => {
+                if (isFractional) {
+                    return qty % 1 === 0 ? qty.toString() : qty.toFixed(1);
+                }
+                return qty.toString();
+            };
+
             // Replace "+" button with "- counter +"
             controlsContainer.innerHTML = `
                 <button class="minus-btn">-</button>
-                <span class="quantity-display">1</span>
+                <span class="quantity-display">${formatQty(initialQty)}</span>
                 <button class="plus-btn">+</button>
             `;
-            quantity = 1;
+            quantity = initialQty;
 
             // Add the item to cart
-            const productId = parseInt(card.dataset.id);
-            const product = findProductById(productId);
-            if (product) {
-                addToCart(product, 1);
-            }
-
-
+            addToCart(product, initialQty);
 
             // Add event listeners to the new buttons
             const plusBtn = controlsContainer.querySelector('.plus-btn');
@@ -652,18 +682,21 @@ function addQuantityControls(card) {
             const quantityDisplay = controlsContainer.querySelector('.quantity-display');
 
             plusBtn.addEventListener('click', () => {
-                quantity++;
-                quantityDisplay.textContent = quantity;
+                quantity += step;
+                if (quantity > 50) quantity = 50; // Max limit
+                quantityDisplay.textContent = formatQty(quantity);
                 updateCartItemQuantity(productId, quantity);
             });
 
             minusBtn.addEventListener('click', () => {
-                if (quantity > 1) {
-                    quantity--;
-                    quantityDisplay.textContent = quantity;
+                if (quantity > minQty) {
+                    quantity -= step;
+                    // Ensure we don't go below minimum due to floating point math
+                    if (quantity < minQty) quantity = minQty;
+                    quantityDisplay.textContent = formatQty(quantity);
                     updateCartItemQuantity(productId, quantity);
                 } else {
-                    // Replace with just "+" when quantity is 0
+                    // Replace with just "+" when removing from cart
                     controlsContainer.innerHTML = `<button class="addItem">+</button>`;
                     quantity = 0;
                     removeFromCart(productId);
@@ -973,6 +1006,18 @@ function updateCartDisplay() {
 
     // Add each item to the cart display
     cart.forEach(item => {
+        const product = findProductById(item.id);
+        const isFractional = product && product.allow_fractional === 1;
+
+        // Format quantity display (show whole numbers without decimal)
+        let quantityText;
+        if (isFractional) {
+            const qtyDisplay = item.quantity % 1 === 0 ? item.quantity.toString() : item.quantity.toFixed(1);
+            quantityText = `${qtyDisplay} ${product.unit}`;
+        } else {
+            quantityText = item.quantity.toString();
+        }
+
         const cartItemElement = document.createElement('div');
         cartItemElement.className = 'cart-item';
         cartItemElement.innerHTML = `
@@ -982,7 +1027,7 @@ function updateCartDisplay() {
             </div>
             <div class="cart-item-controls">
                 <button class="minus-btn" data-id="${item.id}">-</button>
-                <span class="cart-item-quantity">${item.quantity}</span>
+                <span class="cart-item-quantity">${quantityText}</span>
                 <button class="plus-btn" data-id="${item.id}">+</button>
             </div>
         `;
@@ -1060,11 +1105,26 @@ function updateCartDisplay() {
     document.querySelectorAll('.cart-item-controls .plus-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const productId = parseInt(this.dataset.id);
+            const product = findProductById(productId);
+            if (!product) return;
+
             const productCard = document.querySelector(`.cardMenuItem[data-id="${productId}"]`);
             const quantityDisplay = productCard.querySelector('.quantity-display');
-            let currentQuantity = parseInt(quantityDisplay.textContent);
-            currentQuantity++;
-            quantityDisplay.textContent = currentQuantity;
+
+            const isFractional = product.allow_fractional === 1;
+            const step = isFractional ? product.quantity_step : 1;
+            const formatQty = (qty) => {
+                if (isFractional) {
+                    return qty % 1 === 0 ? qty.toString() : qty.toFixed(1);
+                }
+                return qty.toString();
+            };
+
+            let currentQuantity = parseFloat(quantityDisplay.textContent);
+            currentQuantity += step;
+            if (currentQuantity > 50) currentQuantity = 50; // Max limit
+
+            quantityDisplay.textContent = formatQty(currentQuantity);
             updateCartItemQuantity(productId, currentQuantity);
         });
     });
@@ -1072,13 +1132,29 @@ function updateCartDisplay() {
     document.querySelectorAll('.cart-item-controls .minus-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const productId = parseInt(this.dataset.id);
+            const product = findProductById(productId);
+            if (!product) return;
+
             const productCard = document.querySelector(`.cardMenuItem[data-id="${productId}"]`);
             const quantityDisplay = productCard.querySelector('.quantity-display');
-            let currentQuantity = parseInt(quantityDisplay.textContent);
 
-            if (currentQuantity > 1) {
-                currentQuantity--;
-                quantityDisplay.textContent = currentQuantity;
+            const isFractional = product.allow_fractional === 1;
+            const step = isFractional ? product.quantity_step : 1;
+            const minQty = isFractional ? product.min_quantity : 1;
+            const formatQty = (qty) => {
+                if (isFractional) {
+                    return qty % 1 === 0 ? qty.toString() : qty.toFixed(1);
+                }
+                return qty.toString();
+            };
+
+            let currentQuantity = parseFloat(quantityDisplay.textContent);
+
+            if (currentQuantity > minQty) {
+                currentQuantity -= step;
+                // Ensure we don't go below minimum due to floating point math
+                if (currentQuantity < minQty) currentQuantity = minQty;
+                quantityDisplay.textContent = formatQty(currentQuantity);
                 updateCartItemQuantity(productId, currentQuantity);
             } else {
                 // Remove from cart and reset product card
