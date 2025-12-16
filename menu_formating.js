@@ -709,10 +709,12 @@ function addToCart(product, quantity) {
 // Function to handle category switching
 function setupCategorySwitching() {
     const categories = document.querySelectorAll('.category');
-    const tabContents = document.querySelectorAll('.tab-content');
 
     categories.forEach(category => {
         category.addEventListener('click', () => {
+            // Query tab contents fresh each time (don't use stale NodeList)
+            const tabContents = document.querySelectorAll('.tab-content');
+
             // Remove active class from all categories and contents
             categories.forEach(c => c.classList.remove('active'));
             tabContents.forEach(content => content.classList.remove('active'));
@@ -720,7 +722,11 @@ function setupCategorySwitching() {
             // Add active class to clicked category and corresponding content
             category.classList.add('active');
             const categoryName = category.getAttribute('data-category');
-            document.getElementById(`content-${categoryName}`).classList.add('active');
+            const targetContent = document.getElementById(`content-${categoryName}`);
+
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
 
             // Add description toggles for newly visible tab
             setTimeout(() => {
