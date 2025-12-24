@@ -303,6 +303,20 @@ h1 {
     display: none;
 }
 
+/* Hero section scroll hide/show behavior */
+/* Hidden state - instant hide, no animation */
+.hero-hidden {
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+/* Visible state - with fade-in animation */
+.hero-visible {
+    opacity: 1 !important;
+    transition: opacity 0.4s ease-in-out;
+    pointer-events: auto;
+}
+
 
 .main {
     margin-left: 200px;

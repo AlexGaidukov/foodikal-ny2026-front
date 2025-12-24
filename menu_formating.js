@@ -745,6 +745,17 @@ function setupCategorySwitching() {
 
     categories.forEach(category => {
         category.addEventListener('click', () => {
+            // Hide carousel when clicking category button
+            const carouselWrapper = document.querySelector('.carousel-wrapper');
+            if (carouselWrapper) {
+                carouselWrapper.classList.add('hero-hidden');
+                carouselWrapper.classList.remove('hero-visible');
+                // Update hide time to prevent immediate reappearance
+                if (window._updateCarouselHideTime) {
+                    window._updateCarouselHideTime();
+                }
+            }
+
             // Query tab contents fresh each time (don't use stale NodeList)
             const tabContents = document.querySelectorAll('.tab-content');
 
@@ -765,6 +776,18 @@ function setupCategorySwitching() {
             setTimeout(() => {
                 addDescriptionToggles();
             }, 100);
+
+            // Scroll to the tab contents container (first item in category)
+            const tabContentsContainer = document.getElementById('tabContentsContainer');
+            if (tabContentsContainer) {
+                const rect = tabContentsContainer.getBoundingClientRect();
+                const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                const targetPosition = rect.top + scrollTop - 180; // 180px buffer above
+                window.scrollTo({
+                    top: Math.max(0, targetPosition),
+                    behavior: 'smooth'
+                });
+            }
         });
     });
 }
@@ -1561,6 +1584,33 @@ function showFormMessage(message, type) {
 }
 
 
+// Hero section hide/show functionality
+function setupHeroScrollBehavior() {
+    const carouselWrapper = document.querySelector('.carousel-wrapper');
+    let lastHideTime = 0;
+    const HIDE_COOLDOWN = 500; // ms - don't show if hidden within this time
+
+    // Show carousel when scrolling back to top
+    window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY;
+        const now = Date.now();
+
+        // Show when scrolled to top (with small threshold) and enough time has passed since hide
+        if (scrollY <= 400 && carouselWrapper && carouselWrapper.classList.contains('hero-hidden')) {
+            if (now - lastHideTime > HIDE_COOLDOWN) {
+                carouselWrapper.classList.remove('hero-hidden');
+                carouselWrapper.classList.add('hero-visible');
+            }
+        }
+    });
+
+    // Store reference to lastHideTime so category switching can update it
+    window._updateCarouselHideTime = () => {
+        lastHideTime = Date.now();
+    };
+}
+
+
 // Initialize the page
 document.addEventListener('DOMContentLoaded', async () => {
     // PHASE 1: Instant render with embedded fallback data
@@ -1572,6 +1622,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => {
         fetchAndUpdateInBackground();
     }, 100);
+
+    // Setup hero section scroll hide/show behavior
+    setupHeroScrollBehavior();
 });
 
 // Handle window resize to re-check description truncation
