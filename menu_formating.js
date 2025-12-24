@@ -1107,7 +1107,7 @@ function updateCartDisplay() {
     if (appliedPromoCode && discountAmount > 0) {
         // Show total with strikethrough ( INCLUDING DELIVERY) and discounted total in green
         cartTotalSection.innerHTML = `
-            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 16px;">
                 <span>Итого:</span>
                 <span style="text-decoration: line-through;">${totalBeforeDiscount} RSD</span>
             </div>
