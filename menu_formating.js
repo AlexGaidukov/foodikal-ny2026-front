@@ -1060,22 +1060,7 @@ function updateCartDisplay() {
     // Calculate subtotal
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    // Calculate discount locally if promo is applied
-    let total, discountAmount;
-
-    if (appliedPromoCode) {
-        // Calculate 5% discount
-        const discountedPrice = subtotal * 0.95;
-        // Round final price to nearest 50 RSD
-        total = Math.round(discountedPrice / 50) * 50;
-        discountAmount = subtotal - total;
-    } else {
-        // No promo applied
-        discountAmount = 0;
-        total = subtotal;
-    }
-
-    // Calculate delivery fee (based on subtotal before delivery fee)
+    // Calculate delivery fee FIRST (before discount)
     let deliveryFee = 0;
     if (subtotal > 0 && subtotal < FREE_DELIVERY_THRESHOLD) {
         deliveryFee = DELIVERY_FEE;
@@ -1084,6 +1069,26 @@ function updateCartDisplay() {
     } else {
         currentDeliveryFee = 0;
         applyDeliveryFeeFlag = false;
+    }
+
+    // Calculate total before discount (including delivery)
+    const totalBeforeDiscount = subtotal + deliveryFee;
+
+    // Calculate discount if promo is applied (same logic as server)
+    let total, discountAmount;
+
+    if (appliedPromoCode) {
+        // Server logic: discount applies to (subtotal + delivery)
+        // Step 1: Calculate price after 5% discount
+        const discountedPrice = totalBeforeDiscount - Math.floor(totalBeforeDiscount * 0.05);
+        // Step 2: Round to nearest 50 RSD
+        total = Math.round(discountedPrice / 50) * 50;
+        // Step 3: Calculate actual discount amount
+        discountAmount = totalBeforeDiscount - total;
+    } else {
+        // No promo applied
+        discountAmount = 0;
+        total = totalBeforeDiscount;
     }
 
     // Update delivery fee display
@@ -1096,18 +1101,15 @@ function updateCartDisplay() {
         }
     }
 
-    // Add delivery fee to total
-    total = total + deliveryFee;
-
     // Update display based on whether promo is applied
     const cartTotalSection = document.getElementById('cartTotalSection');
 
     if (appliedPromoCode && discountAmount > 0) {
-        // Show total with strikethrough and discounted total in green
+        // Show total with strikethrough ( INCLUDING DELIVERY) and discounted total in green
         cartTotalSection.innerHTML = `
             <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
                 <span>Итого:</span>
-                <span style="text-decoration: line-through;">${subtotal} RSD</span>
+                <span style="text-decoration: line-through;">${totalBeforeDiscount} RSD</span>
             </div>
             <div style="display: flex; justify-content: space-between; color: #28a745; font-weight: 700;">
                 <span>Итого со скидкой:</span>
