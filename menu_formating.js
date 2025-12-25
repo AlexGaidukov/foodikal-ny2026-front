@@ -737,6 +737,7 @@ function addToCart(product, quantity) {
     });
 
     updateCartDisplay();
+    updateCartBadge();
 }
 
 // Function to handle category switching
@@ -978,6 +979,7 @@ function updateCartItemQuantity(productId, quantity) {
     if (item) {
         item.quantity = quantity;
         updateCartDisplay();
+        updateCartBadge();
     }
 }
 
@@ -985,8 +987,39 @@ function updateCartItemQuantity(productId, quantity) {
 function removeFromCart(productId) {
     cart = cart.filter(item => item.id !== productId);
     updateCartDisplay();
+    updateCartBadge();
 }
 
+// Function to update cart badge counter
+function updateCartBadge() {
+    const badgeElement = document.getElementById('cartBadge');
+    if (!badgeElement) return;
+
+    // Calculate total items (sum of all quantities, rounded for fractional items)
+    const totalItems = Math.round(cart.reduce((sum, item) => sum + item.quantity, 0));
+
+    if (totalItems > 0) {
+        // Update badge text (cap at 99+)
+        if (totalItems > 99) {
+            badgeElement.textContent = '99+';
+            badgeElement.classList.add('large-count');
+        } else {
+            badgeElement.textContent = totalItems.toString();
+            badgeElement.classList.remove('large-count');
+        }
+
+        // Show badge with animation
+        badgeElement.classList.add('visible');
+
+        // Add pulse animation for visual feedback
+        badgeElement.classList.remove('pulse');
+        void badgeElement.offsetWidth; // Trigger reflow to restart animation
+        badgeElement.classList.add('pulse');
+    } else {
+        // Hide badge when cart is empty
+        badgeElement.classList.remove('visible');
+    }
+}
 
 function updateCartDisplay() {
     // Clear cart items container
