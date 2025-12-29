@@ -124,10 +124,38 @@ h1 {
     background-color: rgba(255, 255, 255, 0.6);
 }
 
+.order-closed-banner {
+    background-color: rgba(231, 76, 60, 0.7);
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+    color: white;
+    text-align: center;
+    padding: 15px 20px;
+    font-size: 16px;
+    font-family: MyJost, Arial, sans-serif;
+    margin: 10px auto 20px auto;
+    max-width: 800px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    line-height: 1.5;
+    position: relative;
+    z-index: 4;
+}
+
+.order-closed-banner a {
+    color: white;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.order-closed-banner a:hover {
+    text-decoration: none;
+}
+
 /* Banner Carousel */
 .carousel-wrapper {
     max-width: 650px;
-    margin: -20px auto 0;  /* Negative margin to reduce gap with header */
+    margin: -20px auto 0;
     padding: 0 20px;
     position: relative;
     z-index: 5;
@@ -530,6 +558,10 @@ h1 {
 .order:hover {
     background-color: rgba(200, 20, 20, 0.9);
     transition: background-color 0.2s;
+}
+
+.order {
+    display: none;
 }
 
 #bottom {
@@ -964,6 +996,14 @@ h1 {
     color: rgba(255, 100, 100, 0.9);
 }
 
+/* Tablet styles */
+@media (min-width: 601px) and (max-width: 900px) {
+  .order-closed-banner {
+    margin: 10px 20px 20px 20px;
+    max-width: none;
+  }
+}
+
 @media (max-width: 600px) {
   .navbar {
     top: 80px;
@@ -1052,6 +1092,16 @@ h1 {
         font-size: 12.5pt;
         padding: 6px 12px;
     }
+
+  .order-closed-banner {
+        font-size: 14px;
+        padding: 12px 15px;
+        margin: 10px;
+        margin-bottom: 15px;
+        max-width: none;
+        position: relative;
+        z-index: 4;
+  }
 
     .products-grid {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
