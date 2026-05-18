@@ -824,6 +824,13 @@ async function setupCarousel() {
     }
 }
 
+// Rewrite legacy ny2026.foodikal.rs asset URLs to local paths
+// (domain was not renewed; site now lives on github.io and uses local images)
+function rewriteLegacyAssetUrl(url) {
+    if (!url) return url;
+    return url.replace(/^https?:\/\/ny2026\.foodikal\.rs\//, '');
+}
+
 function renderCarousel() {
     if (!carouselTrack || !carouselDots) return;
 
@@ -831,7 +838,7 @@ function renderCarousel() {
     carouselTrack.innerHTML = banners.map(banner => `
         <div class="carousel-slide">
             <a href="${banner.item_link}" title="${banner.name}">
-                <img src="${banner.image_url}" alt="${banner.name}">
+                <img src="${rewriteLegacyAssetUrl(banner.image_url)}" alt="${banner.name}">
                 <div class="banner-text-overlay">
                     <h2 class="banner-title">${banner.name}</h2>
                 </div>
